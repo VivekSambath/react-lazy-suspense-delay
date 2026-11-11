@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>React.lazy, Suspense &amp; the Hidden 300 ms Delay | Slides</title>
+<meta name="description" content="A simple, illustrated slide deck on why React.lazy and Suspense add a hidden 300 ms delay, and how not suspending made widgets appear about 200 ms sooner.">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#1e1f22">
+<link rel="canonical" href="https://viveksambath.github.io/react-lazy-suspense-delay/">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="React.lazy &amp; the Hidden 300 ms Delay (slides)">
+<meta property="og:title" content="React.lazy, Suspense &amp; the Hidden 300 ms Delay | Slides">
+<meta property="og:description" content="A simple, illustrated slide deck on why React.lazy and Suspense add a hidden 300 ms delay, and how not suspending made widgets appear about 200 ms sooner.">
+<meta property="og:url" content="https://viveksambath.github.io/react-lazy-suspense-delay/">
+<meta property="og:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="React.lazy, Suspense and the Hidden 300 ms Delay">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="React.lazy, Suspense &amp; the Hidden 300 ms Delay | Slides">
+<meta name="twitter:description" content="A simple, illustrated slide deck on why React.lazy and Suspense add a hidden 300 ms delay, and how not suspending made widgets appear about 200 ms sooner.">
+<meta name="twitter:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"PresentationDigitalDocument","name":"React.lazy, Suspense and the Hidden 300 ms Delay","description":"A simple, illustrated slide deck on why React.lazy and Suspense add a hidden 300 ms delay, and how not suspending made widgets appear about 200 ms sooner.","url":"https://viveksambath.github.io/react-lazy-suspense-delay/","inLanguage":"en","image":"https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png","keywords":"React, React.lazy, Suspense, performance, FALLBACK_THROTTLE_MS, code splitting, Chrome extension","isBasedOn":{"@type":"BlogPosting","headline":"React.lazy, Suspense and the Hidden 300 ms Delay","url":"https://tabwidgets.com/blog/react-lazy-suspense-delay","datePublished":"2026-10-29","author":{"@type":"Person","name":"Matthew Wong"}}}</script>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .cover-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 3rem; align-items: center; }
+  .meta { display: flex; flex-wrap: wrap; gap: 2rem; align-items: center; margin: 0.4rem 0 1.4rem; }
+  .author { display: flex; gap: 0.8rem; align-items: center; }
+  .avatar { width: 2.7rem; height: 2.7rem; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--border-strong); font-weight: 700; color: var(--accent); }
+  .author strong, .meta-item strong { display: block; font-size: 0.98rem; }
+  .author span, .meta-item span { font-size: 0.82rem; color: var(--dim); }
+  .hint { margin-top: 2.2rem; color: var(--dim); font-size: 0.86rem; }
+  .watch { width: 100%; max-width: 330px; justify-self: center; }
+  .watch .arc { stroke-dasharray: 0 1000; animation: arc 1.6s 0.5s cubic-bezier(0.3, 0.6, 0.2, 1) forwards; }
+  @keyframes arc { to { stroke-dasharray: 150.8 1000; } }
+  @media (max-width: 760px) { .cover-grid { grid-template-columns: 1fr; } .watch { max-width: 220px; } }
+  @media (prefers-reduced-motion: reduce) { .watch .arc { animation: none; stroke-dasharray: 150.8 1000; } }
+</style>
+</head>
+<body data-slide="1">
+<main class="slide">
+  <div class="cover-grid">
+    <div>
+      <div class="kicker">Tab Widgets · Engineering blog</div>
+      <h1 class="display">React.lazy, Suspense<br>and the <span class="hl">Hidden 300&nbsp;ms</span> Delay</h1>
+      <p class="sub">Every new tab is a cold start. The team set out to shrink the bundle, found that bytes weren't the problem, and traced the delay to how React reveals lazy-loaded and suspended content.</p>
+      <div class="meta">
+        <div class="author">
+          <span class="avatar">MW</span>
+          <div><strong>Matthew Wong</strong><span>@mattywong</span></div>
+        </div>
+        <div class="meta-item"><span>Published</span><strong>October 29, 2026</strong></div>
+      </div>
+      <div class="pills">
+        <span class="pill">Performance</span>
+        <span class="pill">Engineering</span>
+        <span class="pill accent">React</span>
+        <span class="pill">Chrome extension</span>
+      </div>
+      <p class="hint">Press <kbd>→</kbd> or <kbd>Space</kbd> to begin &nbsp;·&nbsp; <kbd>←</kbd> back &nbsp;·&nbsp; <kbd>F</kbd> fullscreen</p>
+    </div>
+
+    <svg class="watch" viewBox="0 0 220 240" role="img" aria-label="Stopwatch showing a 300 millisecond hold">
+      <rect x="96" y="6" width="28" height="14" rx="4" fill="#3c3e45"/>
+      <rect x="106" y="18" width="8" height="12" fill="#3c3e45"/>
+      <circle cx="110" cy="132" r="96" fill="#26272b" stroke="#3c3e45" stroke-width="2"/>
+      <circle cx="110" cy="132" r="80" fill="none" stroke="#323339" stroke-width="14"/>
+      <!-- 300 of 1000 ms: circumference 2πr ≈ 502.7 → 30% ≈ 150.8 -->
+      <circle class="arc" cx="110" cy="132" r="80" fill="none" stroke="#f2b250" stroke-width="14" stroke-linecap="round" transform="rotate(-90 110 132)"/>
+      <text x="110" y="132" text-anchor="middle" fill="#e9e9ec" font-family="Segoe UI, system-ui, sans-serif" font-size="36" font-weight="700">300 ms</text>
+      <text x="110" y="158" text-anchor="middle" fill="#73767f" font-family="Consolas, monospace" font-size="10.5">FALLBACK_THROTTLE_MS</text>
+    </svg>
+  </div>
+</main>
+<script src="assets/deck.js"></script>
+</body>
+</html>

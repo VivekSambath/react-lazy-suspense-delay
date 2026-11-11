@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fix 2: Don't Suspend, Gate Instead | React.lazy &amp; the Hidden 300 ms Delay</title>
+<meta name="description" content="Render the placeholder as ordinary content and swap in the widget with a state update, so the React Suspense 300 ms throttle never applies.">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#1e1f22">
+<link rel="canonical" href="https://viveksambath.github.io/react-lazy-suspense-delay/slides/08-fix-2.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="React.lazy &amp; the Hidden 300 ms Delay (slides)">
+<meta property="og:title" content="Fix 2: Don't Suspend, Gate Instead | React.lazy &amp; the Hidden 300 ms Delay">
+<meta property="og:description" content="Render the placeholder as ordinary content and swap in the widget with a state update, so the React Suspense 300 ms throttle never applies.">
+<meta property="og:url" content="https://viveksambath.github.io/react-lazy-suspense-delay/slides/08-fix-2.html">
+<meta property="og:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="React.lazy, Suspense and the Hidden 300 ms Delay">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Fix 2: Don't Suspend, Gate Instead | React.lazy &amp; the Hidden 300 ms Delay">
+<meta name="twitter:description" content="Render the placeholder as ordinary content and swap in the widget with a state update, so the React Suspense 300 ms throttle never applies.">
+<meta name="twitter:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .decide { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 0.4rem 1rem; align-items: center; }
+  .q { width: 7rem; height: 7rem; display: grid; place-items: center; text-align: center; font-weight: 700; font-size: 0.9rem; position: relative; }
+  .q::before { content: ""; position: absolute; inset: 15%; transform: rotate(45deg); border-radius: 10px; border: 2px solid var(--amber); background: var(--amber-soft); }
+  .q span { position: relative; }
+  .branch { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+  .yn { font: 700 0.72rem var(--mono); text-transform: uppercase; padding: 0.2rem 0.45rem; border-radius: 6px; }
+  .yn.yes { color: var(--green); background: var(--green-soft); }
+  .yn.no { color: var(--amber); background: var(--amber-soft); }
+  .chip { padding: 0.45rem 0.75rem; border-radius: 10px; background: var(--bg-soft); border: 1px solid var(--border); font-size: 0.88rem; }
+  .chip.ok { border-color: rgba(92, 208, 138, 0.55); color: var(--green); font-weight: 600; }
+  .ar { color: var(--dim); }
+  .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; }
+  .facts > div { padding: 0.7rem 0.85rem; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); font-size: 0.84rem; color: var(--muted); }
+  .facts b { display: block; margin-bottom: 0.2rem; color: var(--text); font-size: 0.9rem; }
+  @media (max-width: 960px) { .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 760px) { .decide { grid-template-columns: 1fr; } .facts { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-slide="8">
+<main class="slide">
+  <div class="kicker">Fix #2 · the one that held up</div>
+  <h1>Skip the waiter. Bring the dish yourself.</h1>
+  <p class="sub">Widgets no longer suspend while their code loads. The placeholder is shown as ordinary content, and a normal state update swaps in the widget when its code arrives. <strong>Nothing suspends, so the 300 ms rule never kicks in.</strong></p>
+
+  <div class="card">
+    <div class="decide">
+      <div class="chip">🍲 Widget renders</div>
+      <div class="q"><span>Code<br>loaded?</span></div>
+      <div style="display:grid;gap:.9rem">
+        <div class="branch"><span class="yn yes">yes</span><span class="ar">→</span><span class="chip ok">🍲 Show the widget</span></div>
+        <div class="branch"><span class="yn no">no</span><span class="ar">→</span><span class="chip">🪧 Show the placeholder</span><span class="ar">+</span><span class="chip">🍳 Start loading</span><span class="ar">→</span><span class="chip">code arrives: <code>setState</code></span><span class="ar">→</span><span class="chip ok">🍲 Widget</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="facts mt">
+    <div><b>🛟 Keep the safety nets</b>Keep <code>Suspense</code> and the error boundary. They still catch failed imports, and any suspension if React's private fields change.</div>
+    <div><b>💥 Failed load?</b>The widget still renders, so its error boundary can show the failure.</div>
+    <div><b>🪟 Already loaded?</b>Ready right away, including when React loaded it on its own, e.g. in a picture-in-picture window.</div>
+    <div><b>🚀 Startup doesn't wait</b>Loading still starts before the first render, but the app no longer waits for it.</div>
+    <div><b>🧩 One by one</b>Widgets now appear one at a time instead of in a batch. That's fine: every frame has a fixed grid size, so nothing shifts.</div>
+    <div><b>🔐 Same trick, elsewhere</b>The permission check used by Timer, Countdown, Pomodoro, History and Bookmarks was a suspending query. It's now an ordinary query.</div>
+  </div>
+</main>
+<script src="../assets/deck.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Results: Content Shows Up ~200 ms Sooner | React.lazy &amp; the Hidden 300 ms Delay</title>
+<meta name="description" content="First widget content 540 to 298 ms and 85% of content 540 to 336 ms in Chrome on Windows, with the full measurement method.">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#1e1f22">
+<link rel="canonical" href="https://viveksambath.github.io/react-lazy-suspense-delay/slides/10-results.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="React.lazy &amp; the Hidden 300 ms Delay (slides)">
+<meta property="og:title" content="Results: Content Shows Up ~200 ms Sooner | React.lazy &amp; the Hidden 300 ms Delay">
+<meta property="og:description" content="First widget content 540 to 298 ms and 85% of content 540 to 336 ms in Chrome on Windows, with the full measurement method.">
+<meta property="og:url" content="https://viveksambath.github.io/react-lazy-suspense-delay/slides/10-results.html">
+<meta property="og:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="React.lazy, Suspense and the Hidden 300 ms Delay">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Results: Content Shows Up ~200 ms Sooner | React.lazy &amp; the Hidden 300 ms Delay">
+<meta name="twitter:description" content="First widget content 540 to 298 ms and 85% of content 540 to 336 ms in Chrome on Windows, with the full measurement method.">
+<meta name="twitter:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .metric { display: grid; grid-template-columns: 11rem minmax(0, 1fr) 5.2rem; gap: 0.9rem; align-items: center; }
+  .metric + .metric { margin-top: 1rem; }
+  .metric .name { font-size: 0.92rem; font-weight: 600; }
+  .metric .name small { display: block; font-weight: 400; color: var(--dim); font-size: 0.76rem; }
+  .metric .bars2 { display: grid; gap: 4px; }
+  .metric .b { height: 1.25rem; border-radius: 5px; width: calc(var(--v) / 600 * 100%); display: flex; align-items: center; justify-content: flex-end; padding-right: 0.4rem; font: 600 0.72rem var(--mono); }
+  .metric .b.before { background: #4a4c55; color: #d4d6db; }
+  .metric .b.after { background: rgba(97, 218, 251, 0.3); color: var(--accent); box-shadow: inset 0 0 0 1px rgba(97, 218, 251, 0.55); }
+  .delta { font: 700 1rem var(--mono); text-align: right; }
+  .delta.good { color: var(--green); }
+  .delta.flat { color: var(--muted); }
+  .delta.bad { color: var(--amber); }
+  @media (max-width: 760px) { .metric { grid-template-columns: 1fr 4.4rem; } .metric .bars2 { grid-column: 1 / -1; grid-row: 2; } }
+</style>
+</head>
+<body data-slide="10">
+<main class="slide">
+  <div class="kicker">Results</div>
+  <h1>Content shows up ~200 ms sooner</h1>
+  <p class="sub">Measured in real Chrome on a Windows desktop. Each value is the mean of 4 runs.</p>
+
+  <div class="card">
+    <div class="legend" style="margin-bottom:1rem"><span><i style="background:#4a4c55"></i>before</span><span><i style="background:rgba(97,218,251,.45)"></i>after</span></div>
+    <div class="metric"><div class="name">First widget content<small>5% visible</small></div><div class="bars2"><div class="b before" style="--v:540">540 ms · all at once</div><div class="b after" style="--v:298">298 ms</div></div><div class="delta good">−242 ms</div></div>
+    <div class="metric"><div class="name">Most of the dashboard<small>85% visible</small></div><div class="bars2"><div class="b before" style="--v:540">540 ms</div><div class="b after" style="--v:336">336 ms</div></div><div class="delta good">−204 ms</div></div>
+    <div class="metric"><div class="name">All widget content<small>97% visible</small></div><div class="bars2"><div class="b before" style="--v:540">540 ms</div><div class="b after" style="--v:544">544 ms</div></div><div class="delta flat">+4 ms</div></div>
+    <div class="metric"><div class="name">Nav bar visible</div><div class="bars2"><div class="b before" style="--v:274">274 ms</div><div class="b after" style="--v:326">326 ms</div></div><div class="delta bad">+52 ms</div></div>
+  </div>
+
+  <div class="analogy mt"><span class="emo">☕</span><span><strong>Does ~200 ms matter?</strong> At ~107 new tabs a day, saving ~200 ms per widget adds up to ~20 seconds a day, or about <strong>2 hours a year</strong>.</span></div>
+
+  <p class="fine"><strong>How it was measured:</strong> Chrome 154.0.8037.98 on Windows 11 (Intel i9-14900KF, 64 GB 6000 MT/s, T-FORCE TM8FPL2000G NVMe SSD). 4 cold new tabs per build; a busy 20-widget dashboard (incl. Gmail, Google Drive, Tasks, Spotify, an RSS reader and a pets game), 16 visible, signed out; plain grey wallpaper, entrance animation off. Times are read from trace screenshots, counted from when the tab started loading. The seven Pro widgets (Gmail, Calendar, Drive and others) were excluded because signed out they show a sign-in overlay. These numbers can't be compared with the headless ones.</p>
+</main>
+<script src="../assets/deck.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What You See: Before and After Filmstrip | React.lazy &amp; the Hidden 300 ms Delay</title>
+<meta name="description" content="Frame-by-frame view of a new tab from 200 to 550 ms, plus why the Pro overlay, nav bar and weather widgets behave as they do.">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#1e1f22">
+<link rel="canonical" href="https://viveksambath.github.io/react-lazy-suspense-delay/slides/11-on-screen.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="React.lazy &amp; the Hidden 300 ms Delay (slides)">
+<meta property="og:title" content="What You See: Before and After Filmstrip | React.lazy &amp; the Hidden 300 ms Delay">
+<meta property="og:description" content="Frame-by-frame view of a new tab from 200 to 550 ms, plus why the Pro overlay, nav bar and weather widgets behave as they do.">
+<meta property="og:url" content="https://viveksambath.github.io/react-lazy-suspense-delay/slides/11-on-screen.html">
+<meta property="og:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="React.lazy, Suspense and the Hidden 300 ms Delay">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What You See: Before and After Filmstrip | React.lazy &amp; the Hidden 300 ms Delay">
+<meta name="twitter:description" content="Frame-by-frame view of a new tab from 200 to 550 ms, plus why the Pro overlay, nav bar and weather widgets behave as they do.">
+<meta name="twitter:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .film { display: grid; grid-template-columns: 4.4rem repeat(5, minmax(0, 1fr)); gap: 0.65rem; align-items: center; }
+  .film .time { text-align: center; font: 600 0.8rem var(--mono); color: var(--muted); }
+  .film .rowlbl { font-weight: 700; font-size: 0.9rem; }
+  .film .rowlbl small { display: block; font-weight: 400; color: var(--dim); font-size: 0.72rem; }
+  .frame { aspect-ratio: 16 / 10; border-radius: 7px; background: #4a4b4f; padding: 6%; display: grid; grid-template-rows: 9% 1fr; gap: 6%; box-shadow: 0 0 0 1px var(--border); }
+  .frame .nav { border-radius: 3px; background: rgba(255, 255, 255, 0.3); }
+  .frame .nav.off { background: transparent; }
+  .frame .tiles { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); gap: 6%; }
+  .t { border-radius: 3px; }
+  .t.ph { background: rgba(255, 255, 255, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.13); }
+  .t.pro { background: #5b5f78; box-shadow: inset 0 0 0 1px rgba(182, 156, 245, 0.75); }
+  .t.ok { background: rgba(92, 208, 138, 0.78); }
+  .film-legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.78rem; color: var(--muted); }
+  .film-legend i { display: inline-block; width: 0.85rem; height: 0.6rem; border-radius: 2px; margin-right: 0.35rem; }
+  @media (max-width: 760px) { .film { grid-template-columns: 3rem repeat(5, minmax(0, 1fr)); gap: 0.3rem; } }
+</style>
+</head>
+<body data-slide="11">
+<main class="slide">
+  <div class="kicker">Figure 2</div>
+  <h1>What you actually see</h1>
+  <p class="sub">Before, the tab sat empty, then everything popped in at once. After, it fills in piece by piece.</p>
+
+  <div class="card">
+    <div class="film" id="film" aria-label="Before and after screenshots at 200, 300, 350, 450 and 550 ms"></div>
+    <div class="film-legend mt-s">
+      <span><i style="background:rgba(255,255,255,.3)"></i>nav bar</span>
+      <span><i style="background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)"></i>empty frame</span>
+      <span><i style="background:#5b5f78;box-shadow:inset 0 0 0 1px #b69cf5"></i>Pro sign-in overlay</span>
+      <span><i style="background:rgba(92,208,138,.78)"></i>widget content</span>
+    </div>
+  </div>
+
+  <div class="grid-3 mt">
+    <div class="card good"><h3><span class="icon">🔒</span>Overlay at ~200 ms</h3><p>Pro widgets' sign-in overlay used to sit inside the Suspense boundary, hidden until the reveal. Now it paints straight away, over the placeholder.</p></div>
+    <div class="card"><h3><span class="icon">≈</span>Nav bar “+52 ms”</h3><p>Same first render as before. It fades in over 150 ms and widgets now render during the fade, so screenshots catch it later. Headless DOM runs: 157 vs 169 ms, within noise.</p></div>
+    <div class="card warn"><h3><span class="icon">⛅</span>Weather is still slow</h3><p>Weather and Word of the Day load their code, then suspend again to <em>fetch data</em>, so the 300 ms rule still holds them. They're the next target.</p></div>
+  </div>
+  <p class="fine">Simplified redraw of the article's screenshots. Each frame is the last screenshot at or before that time, from the run closest to the median of 4.</p>
+</main>
+<script>
+  // 12 tiles: 2 Pro (sign-in overlay), 2 that also fetch data (Weather, Word of the Day), 8 regular.
+  (function () {
+    var PRO = [2, 7], DATA = [4, 9], FIRST = [0, 1, 3];
+    var TIMES = [200, 300, 350, 450, 550];
+    function frame(nav, stateOf) {
+      var tiles = "";
+      for (var i = 0; i < 12; i++) tiles += '<div class="t ' + stateOf(i) + '"></div>';
+      return '<div class="frame"><div class="nav' + (nav ? "" : " off") + '"></div><div class="tiles">' + tiles + "</div></div>";
+    }
+    function before(t) {
+      return frame(t >= 274, function (i) { return t < 550 ? "ph" : (PRO.indexOf(i) > -1 ? "pro" : "ok"); });
+    }
+    function after(t) {
+      return frame(t >= 326, function (i) {
+        if (PRO.indexOf(i) > -1) return "pro";
+        if (DATA.indexOf(i) > -1) return t >= 550 ? "ok" : "ph";
+        if (t >= 350 || (t >= 300 && FIRST.indexOf(i) > -1)) return "ok";
+        return "ph";
+      });
+    }
+    var html = "<span></span>" + TIMES.map(function (t) { return '<div class="time">' + t + " ms</div>"; }).join("");
+    html += '<div class="rowlbl">Before<small>suspending</small></div>' + TIMES.map(before).join("");
+    html += '<div class="rowlbl">After<small>gated</small></div>' + TIMES.map(after).join("");
+    document.getElementById("film").innerHTML = html;
+  })();
+</script>
+<script src="../assets/deck.js"></script>
+</body>
+</html>

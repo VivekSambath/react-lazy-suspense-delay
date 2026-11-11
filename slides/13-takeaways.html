@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Takeaways and Links | React.lazy &amp; the Hidden 300 ms Delay</title>
+<meta name="description" content="Measure when things appear, look for idle time, know what your framework does on purpose, and check lab results on real machines.">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#1e1f22">
+<link rel="canonical" href="https://viveksambath.github.io/react-lazy-suspense-delay/slides/13-takeaways.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="React.lazy &amp; the Hidden 300 ms Delay (slides)">
+<meta property="og:title" content="Takeaways and Links | React.lazy &amp; the Hidden 300 ms Delay">
+<meta property="og:description" content="Measure when things appear, look for idle time, know what your framework does on purpose, and check lab results on real machines.">
+<meta property="og:url" content="https://viveksambath.github.io/react-lazy-suspense-delay/slides/13-takeaways.html">
+<meta property="og:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="React.lazy, Suspense and the Hidden 300 ms Delay">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Takeaways and Links | React.lazy &amp; the Hidden 300 ms Delay">
+<meta name="twitter:description" content="Measure when things appear, look for idle time, know what your framework does on purpose, and check lab results on real machines.">
+<meta name="twitter:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .lesson { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 0.9rem; align-items: start; }
+  .lesson .emo { font-size: 2rem; line-height: 1; }
+  .lesson h3 { font-size: 1.08rem; }
+  .links { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+  .links a { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.85rem; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 0.88rem; }
+  .links a:hover { text-decoration: none; border-color: rgba(97, 218, 251, 0.5); background: var(--surface-2); }
+  .links a .go { color: var(--accent); }
+</style>
+</head>
+<body data-slide="13">
+<main class="slide">
+  <div class="kicker">Takeaways</div>
+  <h1>Four things to remember</h1>
+  <p class="sub">These improvements shipped in Tab Widgets v2, and every widget uses the gate today.</p>
+
+  <div class="grid-2">
+    <div class="card lesson"><span class="emo">⏱️</span><div><h3>Measure when things appear</h3><p>Not just file sizes. A smaller main file didn't change when anything appeared.</p></div></div>
+    <div class="card lesson"><span class="emo">😴</span><div><h3>Look for idle time</h3><p>The biggest win came from a gap where the main thread did nothing.</p></div></div>
+    <div class="card lesson"><span class="emo">📖</span><div><h3>Know what your framework does on purpose</h3><p>The 300 ms rule prevents flicker. But when content is ready almost at once (rendering from scratch, code from local disk), it was the largest single delay.</p></div></div>
+    <div class="card lesson"><span class="emo">💻</span><div><h3>Check lab results on real machines</h3><p>Headless Chromium exposed the idle gap. Chrome on Windows confirmed the result.</p></div></div>
+  </div>
+
+  <div class="card mt">
+    <h3>Try it yourself (it's free)</h3>
+    <div class="links mt-s">
+      <a href="https://chromewebstore.google.com/detail/ejnndgifkmlldcdlifjaeanhjegoafcl" target="_blank" rel="noopener">Chrome Web Store <span class="go">↗</span></a>
+      <a href="https://microsoftedge.microsoft.com/addons/detail/liehhiaellkkigbapfogcnpjjchkagjf" target="_blank" rel="noopener">Edge Add-ons <span class="go">↗</span></a>
+      <a href="https://app.tabwidgets.com" target="_blank" rel="noopener">Web version, no install <span class="go">↗</span></a>
+      <a href="https://tabwidgets.com/blog/react-lazy-suspense-delay" target="_blank" rel="noopener">Original article <span class="go">↗</span></a>
+      <a href="https://tabwidgets.com/blog/release-v2-0" target="_blank" rel="noopener">Tab Widgets v2 <span class="go">↗</span></a>
+      <a href="https://tabwidgets.com/blog/new-tab-productivity-dashboard" target="_blank" rel="noopener">New tab as a productivity dashboard <span class="go">↗</span></a>
+    </div>
+    <p class="fine">The web version loads over the network, so the startup numbers in these slides are for the extension.</p>
+  </div>
+</main>
+<script src="../assets/deck.js"></script>
+</body>
+</html>
