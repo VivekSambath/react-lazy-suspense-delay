@@ -1,28 +1,28 @@
 <!doctype html>
-<html lang="en-IN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>React.lazy() + Suspense: Fallback &amp; the Hidden 300 ms Reveal Delay (Tanglish Slides)</title>
-<meta name="description" content="Tanglish slides for React developers: React.lazy(), Suspense, fallback UI, useTransition and why React holds back suspended content for up to 300 ms, with a built-in interactive demo.">
-<meta name="keywords" content="React.lazy, Suspense, fallback, useTransition, code splitting, lazy loading, React 19, FALLBACK_THROTTLE_MS, Tanglish, React tutorial">
+<title>React.lazy() + Suspense: Fallback &amp; the Hidden 300 ms Reveal Delay (Slides)</title>
+<meta name="description" content="Slides for React developers: React.lazy(), Suspense, fallback UI, useTransition and why React holds back suspended content for up to 300 ms, with a built-in interactive demo.">
+<meta name="keywords" content="React.lazy, Suspense, fallback, useTransition, code splitting, lazy loading, React 19, FALLBACK_THROTTLE_MS, React tutorial">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#1f1f1f">
 <link rel="canonical" href="https://viveksambath.github.io/react-lazy-suspense-delay/">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f1f1f'/%3E%3Ccircle cx='32' cy='34' r='20' fill='none' stroke='%233c3c3c' stroke-width='6'/%3E%3Cpath d='M32 14 A20 20 0 0 1 51 28' fill='none' stroke='%23cca700' stroke-width='6' stroke-linecap='round'/%3E%3Crect x='28' y='5' width='8' height='6' rx='2' fill='%234daafc'/%3E%3C/svg%3E">
 
 <meta property="og:type" content="article">
-<meta property="og:site_name" content="React.lazy + Suspense (Tanglish slides)">
+<meta property="og:site_name" content="React.lazy + Suspense (slides)">
 <meta property="og:title" content="React.lazy() + Suspense: Fallback &amp; the Hidden 300 ms Reveal Delay">
-<meta property="og:description" content="Tanglish slides: lazy loading, Suspense fallback, useTransition and React's 300 ms reveal throttle, with an interactive demo.">
+<meta property="og:description" content="Slides: lazy loading, Suspense fallback, useTransition and React's 300 ms reveal throttle, with an interactive demo.">
 <meta property="og:url" content="https://viveksambath.github.io/react-lazy-suspense-delay/">
 <meta property="og:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:locale" content="en_IN">
+<meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="React.lazy() + Suspense: Fallback &amp; the Hidden 300 ms Reveal Delay">
-<meta name="twitter:description" content="Tanglish slides: lazy loading, Suspense fallback, useTransition and React's 300 ms reveal throttle.">
+<meta name="twitter:description" content="Slides: lazy loading, Suspense fallback, useTransition and React's 300 ms reveal throttle.">
 <meta name="twitter:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
 
 <script type="application/ld+json">
@@ -30,8 +30,8 @@
   "@context": "https://schema.org",
   "@type": "Article",
   "headline": "React.lazy() + Suspense: Fallback & the Hidden 300 ms Reveal Delay",
-  "description": "Tanglish slides explaining React.lazy(), Suspense fallback UI, useTransition and React's 300 ms reveal throttle, with an interactive demo.",
-  "inLanguage": "en-IN",
+  "description": "Slides explaining React.lazy(), Suspense fallback UI, useTransition and React's 300 ms reveal throttle, with an interactive demo.",
+  "inLanguage": "en",
   "datePublished": "2026-11-11",
   "dateModified": "2026-11-11",
   "author": { "@type": "Person", "name": "VivekSambath", "url": "https://github.com/VivekSambath" },
@@ -329,15 +329,15 @@
   <section class="slide" aria-roledescription="slide" aria-label="1 of 8: Introduction" data-title="Introduction">
     <div class="slide-inner cover">
       <div>
-        <p class="kicker">React · Tanglish edition</p>
+        <p class="kicker">React · Performance</p>
         <h1><span>React.lazy()</span> + Suspense</h1>
-        <p class="subtitle">Component-ah lazy-ah load pannumbodhu fallback eppadi work aaguthu?</p>
+        <p class="subtitle">How does the fallback work when a component is lazy-loaded?</p>
       </div>
       <div class="grid-4">
-        <div class="card concept blue"><div class="icon">✂</div><h3>Code splitting</h3><p>Periya bundle-ah chinna chinna chunks-ah split pannrom.</p></div>
-        <div class="card concept amber"><div class="icon">⤓</div><h3>Lazy loading</h3><p>Component theva padumbodhu mattum thaan adhoda code load aagum.</p></div>
-        <div class="card concept green"><div class="icon">⏳</div><h3>Suspense fallback</h3><p>Load aagura varaikkum oru temporary UI kaattum.</p></div>
-        <div class="card concept red"><div class="icon">⏱</div><h3>Delayed reveal</h3><p>Code ready aanaalum React reveal-ah konjam hold pannalaam. Idhu thaan article-oda main point.</p></div>
+        <div class="card concept blue"><div class="icon">✂</div><h3>Code splitting</h3><p>Split one big bundle into smaller chunks.</p></div>
+        <div class="card concept amber"><div class="icon">⤓</div><h3>Lazy loading</h3><p>A component's code loads only when it's needed.</p></div>
+        <div class="card concept green"><div class="icon">⏳</div><h3>Suspense fallback</h3><p>Shows a temporary UI while the code loads.</p></div>
+        <div class="card concept red"><div class="icon">⏱</div><h3>Delayed reveal</h3><p>Even when the code is ready, React may hold back the reveal. That's the article's main point.</p></div>
       </div>
       <p class="dim small">Based on <a href="https://tabwidgets.com/blog/react-lazy-suspense-delay" rel="noopener">“React.lazy, Suspense and the Hidden 300 ms Delay”</a> by Matthew Wong (Tab Widgets, 29 Oct 2026). Use <kbd>←</kbd> <kbd>→</kbd> or <kbd>Space</kbd> to move.</p>
     </div>
@@ -356,7 +356,7 @@
           <pre class="code" style="margin-top:.8rem"><code>import Dashboard from './Dashboard';</code></pre>
           <div class="bundle" style="margin-top:1rem" aria-label="Diagram: one main bundle containing App and Dashboard">
             <div class="file"><b>main.js</b><span class="mod">App</span><span class="mod dash">Dashboard</span></div>
-            <p class="bundle-note">Startup-laye ellam serndhu load aagum.</p>
+            <p class="bundle-note">Everything loads together at startup.</p>
           </div>
         </div>
         <div class="card amber">
@@ -366,15 +366,15 @@
 const Dashboard = lazy(() =&gt; import('./Dashboard'));</code></pre>
           <div class="bundle" style="margin-top:1rem" aria-label="Diagram: main bundle with App, separate Dashboard chunk loaded on first render">
             <div class="file"><b>main.js</b><span class="mod">App</span></div>
-            <div class="bundle-link">↳ first render-la mattum load</div>
+            <div class="bundle-link">↳ loaded only on first render</div>
             <div class="file chunk"><b>Dashboard.[hash].js</b><span class="mod dash">Dashboard</span></div>
           </div>
         </div>
       </div>
       <ul class="points">
-        <li><strong>Normal import</strong>: regular module import path. Dashboard code main bundle-oda serndhu start-laye load aagum.</li>
-        <li><strong><code>lazy()</code></strong>: React adha <strong>first time render pannumbodhu</strong> thaan module load pannum.</li>
-        <li>Bundler (Vite, webpack, Rspack) support pannaa, adhu <strong>separate chunk</strong>-ah split aagum, so first load chinna-thaa irukkum.</li>
+        <li><strong>Normal import</strong>: the regular module path. Dashboard's code ships in the main bundle and loads at startup.</li>
+        <li><strong><code>lazy()</code></strong>: React loads the module only <strong>the first time it renders</strong> the component.</li>
+        <li>With bundler support (Vite, webpack, Rspack) it becomes a <strong>separate chunk</strong>, so the first download is smaller.</li>
       </ul>
     </div>
   </section>
@@ -399,20 +399,20 @@ function App() {
   );
 }</code></pre>
         <ul class="points">
-          <li><strong><code>lazy()</code></strong> component code-ah load pannum.</li>
-          <li><strong><code>Suspense</code></strong> oru boundary: “inside-la edhavadhu wait pannaa, idha kaattu.”</li>
-          <li><strong><code>fallback</code></strong> = lazy component wait pannumbodhu kaattura temporary UI.</li>
-          <li>Component ready aanadhum, React <strong>actual component-ah</strong> kaattum.</li>
+          <li><strong><code>lazy()</code></strong> loads the component's code.</li>
+          <li><strong><code>Suspense</code></strong> is a boundary: “if anything inside is waiting, show this.”</li>
+          <li><strong><code>fallback</code></strong> is the temporary UI shown while the lazy component waits.</li>
+          <li>Once the component is ready, React shows the <strong>actual component</strong>.</li>
         </ul>
       </div>
       <div class="flow" aria-label="Flow: Render Profile, module pending, show fallback, module ready, show Profile">
         <div class="node blue">Render &lt;Profile /&gt;</div>
         <div class="arrow">→</div>
-        <div class="node decision">Module pending?<small>code innum varala</small></div>
+        <div class="node decision">Module pending?<small>code not here yet</small></div>
         <div class="arrow">→</div>
         <div class="node amber">Show fallback<small>“Loading profile...”</small></div>
         <div class="arrow">→</div>
-        <div class="node gray">Module ready<small>chunk vandhuduchu</small></div>
+        <div class="node gray">Module ready<small>chunk arrived</small></div>
         <div class="arrow">→</div>
         <div class="node green">Show Profile</div>
       </div>
@@ -423,9 +423,9 @@ function App() {
   <section class="slide" aria-roledescription="slide" aria-label="4 of 8: Understand the delay" data-title="Understand the delay">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Article-oda main point</p>
-        <h2>Code ready aanaalum, reveal udane nadakkaadhu</h2>
-        <p class="lead">Tab Widgets-la widget code <strong>~100 ms</strong>-la ready. Aana widgets screen-la <strong>~380 ms</strong>-la thaan vandhuchu.</p>
+        <p class="kicker">The article's main point</p>
+        <h2>The code is ready, but the reveal isn't immediate</h2>
+        <p class="lead">In Tab Widgets, widget code was ready at <strong>~100 ms</strong>, but the widgets only appeared at <strong>~380 ms</strong>.</p>
       </header>
 
       <div class="card">
@@ -462,8 +462,8 @@ function App() {
       </div>
 
       <div class="grid-2">
-        <div class="callout amber"><strong>Why the wait?</strong> React suspended content-ah <strong>at most once every 300 ms</strong> thaan reveal pannum, last fallback kaattuna time-la irundhu (<code>FALLBACK_THROTTLE_MS</code>). Flicker avoid panna intentional-ah vechirukkanga. Idhu <strong>throttle</strong>, ella component-kum fixed delay illa: code 300 ms-ku apparam vandha, extra wait illa.</div>
-        <div class="callout"><strong>Transition vs normal:</strong> already visible content-ah transition update pannaa, React old content-ah screen-la vechchikkum (fallback flash illa). Aana <strong>first time mount</strong> aagura boundary-ku fallback kandippa varum, transition skip pannaadhu.</div>
+        <div class="callout amber"><strong>Why the wait?</strong> React reveals suspended content <strong>at most once every 300 ms</strong>, counted from when a fallback was last shown (<code>FALLBACK_THROTTLE_MS</code>). It's intentional, to avoid flicker. It's a <strong>throttle</strong>, not a fixed delay for every component: if the code arrives after 300 ms, there's no extra wait.</div>
+        <div class="callout"><strong>Transition vs normal:</strong> when a transition updates content that's already visible, React keeps the old content on screen (no fallback flash). But a boundary that <strong>mounts for the first time</strong> still shows its fallback; a transition can't skip it.</div>
       </div>
     </div>
   </section>
@@ -473,7 +473,7 @@ function App() {
     <div class="slide-inner">
       <header>
         <p class="kicker">Try it · simulation</p>
-        <h2>Loading states-ah neengale try pannunga</h2>
+        <h2>Try the loading states yourself</h2>
       </header>
 
       <div class="demo">
@@ -494,14 +494,14 @@ function App() {
             <legend class="field-label">How the component is shown</legend>
             <div class="radio-row">
               <label><input type="radio" name="mode" value="suspense" checked><span>Suspense fallback<small>React 19 style: reveal throttled to 300 ms after the fallback</small></span></label>
-              <label><input type="radio" name="mode" value="manual"><span>Manual placeholder (no suspend)<small>Article-oda fix: placeholder-ah neenga kaattunga, ready aanadhum swap</small></span></label>
+              <label><input type="radio" name="mode" value="manual"><span>Manual placeholder (no suspend)<small>The article's fix: show the placeholder yourself, swap when ready</small></span></label>
             </div>
           </fieldset>
           <div class="actions">
             <button class="btn primary" type="button" id="load-btn">▶ Load component</button>
             <button class="btn" type="button" id="reset-btn">↺ Reset</button>
           </div>
-          <p class="sim-note"><strong>Simulation:</strong> idhu React-oda behaviour-ah model pannra educational demo. Real timing browser, device, network-ku etha maadhiri maarum.</p>
+          <p class="sim-note"><strong>Simulation:</strong> an educational model of React's behaviour. Real timing varies with the browser, device and network.</p>
         </div>
 
         <div class="card">
@@ -512,7 +512,7 @@ function App() {
             <span class="mark" id="bar-code" style="--at:-50"></span>
           </div>
           <div class="demo-axis" aria-hidden="true"><span>0</span><span id="axis-mid">300 ms</span><span id="axis-max">600 ms</span></div>
-          <ul class="log" id="log" aria-live="polite"><li class="empty">Status log inga varum.</li></ul>
+          <ul class="log" id="log" aria-live="polite"><li class="empty">The status log appears here.</li></ul>
         </div>
       </div>
     </div>
@@ -556,10 +556,10 @@ export default function App() {
 }</code></pre>
         <div style="display:grid;gap:1.1rem">
           <ul class="points">
-            <li><strong><code>useTransition()</code></strong> update-ah <strong>non-urgent</strong>-nu mark pannum.</li>
-            <li>Already reveal aana content (“Home page”) transition pending-la irukkumbodhu <strong>screen-la-ye irukkum</strong>.</li>
-            <li><strong><code>isPending</code></strong> vechu optional-ah “Updating...” maadhiri chinna indicator kaattalaam.</li>
-            <li>Suspense fallback-um transition pending UI-um <strong>related, aana different</strong> concepts.</li>
+            <li><strong><code>useTransition()</code></strong> marks an update as <strong>non-urgent</strong>.</li>
+            <li>Content that's already revealed (“Home page”) <strong>stays on screen</strong> while the transition is pending.</li>
+            <li>Use <strong><code>isPending</code></strong> to show an optional small indicator like “Updating...”.</li>
+            <li>The Suspense fallback and the transition's pending UI are <strong>related but different</strong> concepts.</li>
           </ul>
           <div class="card" aria-label="Diagram comparing a normal update and a transition update">
             <div class="screens">
@@ -573,7 +573,7 @@ export default function App() {
               <div class="screen new">Dashboard</div>
             </div>
           </div>
-          <p class="dim small">Note: first time mount aagura Suspense boundary-ku transition fallback-ah skip pannaadhu. Development build-la behaviour konjam different-ah irukkalaam, so production build-la verify pannunga.</p>
+          <p class="dim small">Note: a transition doesn't skip the fallback of a Suspense boundary that mounts for the first time. Behaviour can differ slightly in the development build, so verify in a production build.</p>
         </div>
       </div>
     </div>
@@ -587,12 +587,12 @@ export default function App() {
         <h2>Common mistakes</h2>
       </header>
       <div class="grid-3">
-        <div class="card red"><h3>1 · Suspense illaama <code>lazy()</code></h3><p>Lazy component suspend aagumbodhu mela oru Suspense boundary kandippa irukkanum.</p></div>
-        <div class="card red"><h3>2 · Boundary romba mela / keezha</h3><p>Romba mela: full page blank. Romba keezha: spinners everywhere. Loading experience yosichu vainga.</p></div>
-        <div class="card red"><h3>3 · Tiny delay-ku periya spinner</h3><p>Flash maadhiri theriyum. Same size skeleton use pannunga, illa ondrum kaattaadheenga.</p></div>
-        <div class="card red"><h3>4 · Fallback udane vandhu-poidum-nu nenaikkradhu</h3><p>React reveal-ah throttle pannum. Fast-ah load aagura code-ku suspend pannaama placeholder-ah neengale kaattunga (article fix: ~200 ms faster).</p></div>
-        <div class="card red"><h3>5 · <code>useTransition</code> = Suspense-nu confuse</h3><p>Transition = update priority. Suspense = loading boundary. Rendum serndhu work pannum, aana onnu illa.</p></div>
-        <div class="card red"><h3>6 · Ella async-ayum Suspense handle pannum-nu</h3><p><code>lazy()</code>, <code>use()</code>, Suspense-ready frameworks mattum. Normal <code>useEffect</code> fetch-ku Suspense trigger aagaadhu.</p></div>
+        <div class="card red"><h3>1 · <code>lazy()</code> without Suspense</h3><p>A lazy component that suspends needs a Suspense boundary above it.</p></div>
+        <div class="card red"><h3>2 · Boundary too high or too low</h3><p>Too high: the whole page goes blank. Too low: spinners everywhere. Place it with the loading experience in mind.</p></div>
+        <div class="card red"><h3>3 · A big spinner for a tiny delay</h3><p>It looks like a flash. Use a same-size skeleton, or show nothing at all.</p></div>
+        <div class="card red"><h3>4 · Assuming fallbacks come and go instantly</h3><p>React throttles reveals. For code that loads fast, show the placeholder yourself instead of suspending (the article's fix: ~200 ms faster).</p></div>
+        <div class="card red"><h3>5 · Confusing <code>useTransition</code> with Suspense</h3><p>Transition = update priority. Suspense = loading boundary. They work together, but they aren't the same thing.</p></div>
+        <div class="card red"><h3>6 · Expecting Suspense to handle every async task</h3><p>Only <code>lazy()</code>, <code>use()</code> and Suspense-ready frameworks. A normal <code>useEffect</code> fetch doesn't trigger Suspense.</p></div>
       </div>
       <div class="grid-2">
         <div class="card">
@@ -601,14 +601,14 @@ export default function App() {
             <div class="blk"></div><div class="blk"></div><div class="blk"></div><div class="blk"></div>
             <div class="overlay"><div class="spinner"></div></div>
           </div>
-          <p class="dim small" style="margin-top:.5rem">50 ms load-ku full-page spinner: flash, layout jump.</p>
+          <p class="dim small" style="margin-top:.5rem">A full-page spinner for a 50 ms load: a flash and a layout jump.</p>
         </div>
         <div class="card">
           <span class="tag green">Good</span>
           <div class="ui-mock" style="margin-top:.7rem" aria-label="Good: the page stays, only the loading card shows a same-size skeleton">
             <div class="blk"></div><div class="blk skeleton"></div><div class="blk"></div><div class="blk"></div>
           </div>
-          <p class="dim small" style="margin-top:.5rem">Page apdiye irukkum; loading aagura card-la mattum same-size skeleton.</p>
+          <p class="dim small" style="margin-top:.5rem">The page stays put; only the loading card shows a same-size skeleton.</p>
         </div>
       </div>
     </div>
@@ -622,12 +622,12 @@ export default function App() {
         <h2>Quick summary</h2>
       </header>
       <div class="defs">
-        <div><code>lazy()</code><span class="muted">Component code-ah theva padumbodhu load pannum.</span></div>
-        <div><code>Suspense</code><span class="muted">Suspended content-ku fallback UI define pannum.</span></div>
+        <div><code>lazy()</code><span class="muted">Loads a component's code when it's needed.</span></div>
+        <div><code>Suspense</code><span class="muted">Defines the fallback UI for suspended content.</span></div>
         <div><code>fallback</code><span class="muted">Temporary loading interface.</span></div>
-        <div><code>useTransition()</code><span class="muted">Update-ah non-urgent-ah mark pannum; transitions-la loading flash avoid panna help pannum.</span></div>
+        <div><code>useTransition()</code><span class="muted">Marks updates as non-urgent and helps avoid loading flashes during transitions.</span></div>
       </div>
-      <blockquote class="quote">“Lazy loading component-ah load pannum; Suspense loading state-ah handle pannum. Transition use pannumbodhu already visible content smooth-ah maintain panna React-ku help kidaikkum.”</blockquote>
+      <blockquote class="quote">“Lazy loading loads the component; Suspense handles the loading state. With a transition, React can keep already-visible content on screen smoothly.”</blockquote>
       <div class="grid-2">
         <div class="card">
           <h3>Interview answer (30 sec)</h3>
@@ -785,7 +785,7 @@ export default function App() {
     timers = [];
     cancelAnimationFrame(raf);
     stage.textContent = "Click “Load component”";
-    log.innerHTML = '<li class="empty">Status log inga varum.</li>';
+    log.innerHTML = '<li class="empty">The status log appears here.</li>';
     setSeg(barFallback, 0, 0);
     setSeg(barShown, 0, 0);
     barCode.style.setProperty("--at", -50);
@@ -803,8 +803,8 @@ export default function App() {
     axisMid.textContent = scale / 2 + " ms";
     axisMax.textContent = scale + " ms";
 
-    addLog(0, "Render start: &lt;Profile /&gt; render aagudhu", "blue");
-    addLog(0, mode === "suspense" ? "Module pending → Suspense fallback kaattudhu" : "Code innum varala → placeholder-ah naame kaattrom (no suspend)", "amber");
+    addLog(0, "Render start: &lt;Profile /&gt; renders", "blue");
+    addLog(0, mode === "suspense" ? "Module pending → Suspense shows the fallback" : "Code not loaded yet → we show the placeholder ourselves (no suspend)", "amber");
     stage.innerHTML = '<div class="skeleton-card">Loading profile...</div>';
 
     var start = performance.now();
@@ -823,10 +823,10 @@ export default function App() {
       setSeg(barFallback, 0, reveal);
       setSeg(barShown, reveal, scale);
       var held = reveal - load;
-      stage.innerHTML = '<div class="profile"><span class="avatar">👤</span><span><b>Profile loaded</b><span class="dim">Real component render aayiduchu</span></span></div>';
+      stage.innerHTML = '<div class="profile"><span class="avatar">👤</span><span><b>Profile loaded</b><span class="dim">The real component has rendered</span></span></div>';
       addLog(reveal, held > 0
-        ? "Profile revealed. Code ready-aagi " + held + " ms React hold pannuchu (300 ms throttle)"
-        : "Profile revealed. Extra wait illa", "green");
+        ? "Profile revealed. React held it for " + held + " ms after the code was ready (300 ms throttle)"
+        : "Profile revealed. No extra wait", "green");
       loadBtn.disabled = false;
     }, reveal));
   }

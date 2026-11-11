@@ -1,50 +1,7 @@
 import { useState } from "react";
-import NormalImport from "./examples/1-NormalImport.jsx";
-import LazyImport from "./examples/2-LazyImport.jsx";
-import LazyTransition from "./examples/3-LazyTransition.jsx";
-import Fix1Preload from "./examples/4-Fix1Preload.jsx";
-import Fix2Gate from "./examples/5-Fix2Gate.jsx";
-import Alternative from "./examples/6-Alternative.jsx";
-
-const EXAMPLES = [
-  {
-    title: "Normal import",
-    file: "src/examples/1-NormalImport.jsx",
-    expect: "A few ms. The component is already in the main bundle.",
-    Component: NormalImport,
-  },
-  {
-    title: "Lazy import + Suspense",
-    file: "src/examples/2-LazyImport.jsx",
-    expect: "~300 ms on a cold start, even though the code loads in a few ms. React holds the reveal.",
-    Component: LazyImport,
-  },
-  {
-    title: "Lazy + useTransition",
-    file: "src/examples/3-LazyTransition.jsx",
-    expect: "“Home page” stays visible with “Updating…” instead of a fallback flash.",
-    Component: LazyTransition,
-    selfStarting: true,
-  },
-  {
-    title: "Fix #1: preload before render",
-    file: "src/examples/4-Fix1Preload.jsx · src/lazy/preloadLazy.js",
-    expect: "Fast, because the code is ready before the first render. Slow code would still suspend.",
-    Component: Fix1Preload,
-  },
-  {
-    title: "Fix #2: gate, don't suspend",
-    file: "src/examples/5-Fix2Gate.jsx · src/lazy/useLazyReady.js",
-    expect: "A few ms. No suspension, so no 300 ms throttle. This is the fix that shipped.",
-    Component: Fix2Gate,
-  },
-  {
-    title: "Alternative: own cache",
-    file: "src/examples/6-Alternative.jsx · src/lazy/useLoadedComponent.js",
-    expect: "Same as fix #2, using only public React APIs.",
-    Component: Alternative,
-  },
-];
+import { EXAMPLES } from "./exampleData.jsx";
+import CodeView from "./ui/CodeView.jsx";
+import Steps from "./ui/Steps.jsx";
 
 function initialIndex() {
   const n = Number(new URLSearchParams(location.search).get("example"));
@@ -54,18 +11,24 @@ function initialIndex() {
 export default function App() {
   const [index, setIndex] = useState(initialIndex);
   const [mount, setMount] = useState(null); // { key, startedAt } while mounted
+  const [step, setStep] = useState(null); // selected explanation step
+  const [filePath, setFilePath] = useState(null); // open code tab
 
   const example = EXAMPLES[index];
   const { Component } = example;
+  const activeStep = step === null ? null : example.steps[step];
 
   function select(i) {
     setIndex(i);
     setMount(null);
+    setStep(null);
+    setFilePath(null);
     history.replaceState(null, "", `?example=${i + 1}`);
   }
 
-  function mountExample() {
-    setMount({ key: Date.now(), startedAt: performance.now() });
+  function selectStep(i) {
+    setStep(i);
+    setFilePath(example.steps[i].file);
   }
 
   return (
@@ -83,46 +46,59 @@ export default function App() {
       </aside>
 
       <main className="panel">
-        <header>
+        <header className="panel-head">
+          <p className="eyebrow">Example {index + 1} of {EXAMPLES.length}</p>
           <h2>{example.title}</h2>
-          <code className="file">{example.file}</code>
+          <p className="summary">{example.summary}</p>
         </header>
 
-        <p className="expect">
-          <strong>Expect:</strong> {example.expect}
-        </p>
-
-        <div className="row">
-          {!example.selfStarting && (
-            <button className="btn primary" onClick={mountExample}>
-              {mount ? "↻ Remount" : "▶ Mount"}
+        {/* ---------- Try it ---------- */}
+        <section className="card try">
+          <div className="row">
+            {!example.selfStarting && (
+              <button className="btn primary" onClick={() => setMount({ key: Date.now(), startedAt: performance.now() })}>
+                {mount ? "↻ Remount" : "▶ Mount"}
+              </button>
+            )}
+            {!example.selfStarting && mount && (
+              <button className="btn" onClick={() => setMount(null)}>
+                Unmount
+              </button>
+            )}
+            <button className="btn" onClick={() => location.reload()} title="Reload the page for a cold start">
+              ⟳ Cold start
             </button>
-          )}
-          {!example.selfStarting && mount && (
-            <button className="btn" onClick={() => setMount(null)}>
-              Unmount
-            </button>
-          )}
-          <button className="btn" onClick={() => location.reload()} title="Reload the page for a cold start">
-            ⟳ Cold start (reload)
-          </button>
-        </div>
+            <span className="expect">
+              <strong>Expect:</strong> {example.expect}
+            </span>
+          </div>
 
-        <section className="stage" aria-live="polite">
-          {example.selfStarting ? (
-            <Component />
-          ) : mount ? (
-            <Component key={mount.key} startedAt={mount.startedAt} />
-          ) : (
-            <p className="hint">Press Mount to render this example.</p>
-          )}
+          <div className="stage" aria-live="polite">
+            {example.selfStarting ? (
+              <Component key={index} />
+            ) : mount ? (
+              <Component key={mount.key} startedAt={mount.startedAt} />
+            ) : (
+              <p className="hint">Press Mount to render this example.</p>
+            )}
+          </div>
         </section>
 
-        <p className="note">
-          React.lazy remembers a loaded component, so a <em>second</em> mount of the same example is instant.
-          Use <strong>Cold start</strong> to see the first-load behaviour again. For production-like timing:
-          <code>npm run build &amp;&amp; npm run preview</code>.
-        </p>
+        {/* ---------- Explanation + code ---------- */}
+        <section className="learn">
+          <div className="explain">
+            <h3>How it works</h3>
+            <p className="hint small">Click a step to highlight its code.</p>
+            <Steps steps={example.steps} active={step} onSelect={selectStep} />
+          </div>
+          <CodeView
+            key={index}
+            files={example.files}
+            activePath={filePath ?? example.files[0].path}
+            onSelectFile={setFilePath}
+            mark={activeStep && activeStep.file === (filePath ?? example.files[0].path) ? activeStep.mark : null}
+          />
+        </section>
       </main>
     </div>
   );

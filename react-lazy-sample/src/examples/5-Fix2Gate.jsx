@@ -1,9 +1,4 @@
-// 5. ARTICLE FIX #2: DON'T SUSPEND, GATE INSTEAD  (the fix that shipped)
-// Render the placeholder as ordinary content until the code is loaded, then a normal
-// state update swaps in the Dashboard. Nothing suspends, so the 300 ms rule never applies.
-//
-// Keep the Suspense boundary (and an error boundary in a real app) as a safety net:
-// it still catches failed imports, and any suspension if React's private fields change.
+// 5. Article fix #2 (shipped): don't suspend, gate instead.
 import { lazy, Suspense } from "react";
 import Loading from "../components/Loading.jsx";
 import { useLazyReady } from "../lazy/useLazyReady.js";

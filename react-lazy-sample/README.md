@@ -13,8 +13,15 @@ npm run build && npm run preview # production build (closest to real timing)
 ```
 
 Open the URL Vite prints, pick an example on the left, press **Mount**, and read the
-**“visible after X ms”** badge. Use **Cold start (reload)** to see first-load behaviour again,
+**“visible after X ms”** badge. Use **Cold start** to see first-load behaviour again,
 because React.lazy remembers a component once it has loaded. `?example=2` opens an example directly.
+
+Each example page also shows:
+
+- **The code**: the real source files (imported with Vite's `?raw`, so they always match what runs),
+  in a read-only editor with file tabs, line numbers and VS Code Dark+ colours.
+- **How it works**: numbered steps explaining the code. Click a step to jump to its file and
+  highlight the lines it talks about. The steps live in `src/exampleData.jsx`.
 
 ## Examples
 

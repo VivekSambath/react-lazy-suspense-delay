@@ -1,12 +1,4 @@
-// 4. ARTICLE FIX #1: PRELOAD BEFORE THE FIRST RENDER
-// Start the import before React renders the lazy component, and wait up to 100 ms.
-// If the code is ready by then, React.lazy doesn't suspend, so there's no 300 ms throttle.
-//
-// In the real app this happens once at startup, before root.render(). Here it runs in an
-// effect so you can trigger it with the Mount button.
-//
-// Weak spot: if the code takes longer than 100 ms, the component still suspends, just
-// later, and the 300 ms window starts later too.
+// 4. Article fix #1: start the import before rendering, wait up to 100 ms.
 import { lazy, Suspense, useEffect, useState } from "react";
 import Loading from "../components/Loading.jsx";
 import { preloadLazy } from "../lazy/preloadLazy.js";
@@ -27,7 +19,7 @@ export default function Fix1Preload({ startedAt }) {
     };
   }, []);
 
-  if (!started) return null; // the app hasn't rendered yet (startup wait)
+  if (!started) return null; // the "app" hasn't rendered yet (startup wait)
 
   return (
     <Suspense fallback={<Loading />}>

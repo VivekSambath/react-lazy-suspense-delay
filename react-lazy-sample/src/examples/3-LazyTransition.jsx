@@ -1,9 +1,4 @@
-// 3. LAZY + useTransition
-// The Suspense boundary is already showing "Home page". Switching to the Dashboard inside
-// a transition keeps "Home page" on screen (no fallback flash) and shows `isPending` instead.
-//
-// Note (from the article): a transition can't skip the fallback of a boundary that is
-// mounting for the FIRST time. It only helps when content is already visible, like here.
+// 3. Lazy + useTransition: keep "Home page" visible instead of flashing the fallback.
 import { lazy, Suspense, useState, useTransition } from "react";
 import Loading from "../components/Loading.jsx";
 

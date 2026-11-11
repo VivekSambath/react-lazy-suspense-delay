@@ -1,6 +1,6 @@
 # React.lazy() + Suspense: the hidden 300 ms delay
 
-Tanglish slides for React developers, based on
+Slides for React developers, based on
 [“React.lazy, Suspense and the Hidden 300 ms Delay”](https://tabwidgets.com/blog/react-lazy-suspense-delay)
 by Matthew Wong (Tab Widgets, 29 October 2026).
 
