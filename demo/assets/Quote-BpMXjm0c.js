@@ -1,0 +1,1 @@
+import{j as e}from"./index-nPE6bQcR.js";function t(){return e.jsxs("figure",{className:"widget quote",children:[e.jsx("blockquote",{children:"“Measure when things appear, not just file sizes.”"}),e.jsx("figcaption",{className:"muted",children:"Lesson #1"})]})}export{t as default};

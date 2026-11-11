@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://viveksambath.github.io/react-lazy-suspense-delay/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://viveksambath.github.io/react-lazy-suspense-delay/slides/02-problem.html</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://viveksambath.github.io/react-lazy-suspense-delay/slides/03-the-app.html</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://viveksambath.github.io/react-lazy-suspense-delay/slides/04-first-guess.html</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://viveksambath.github.io/react-lazy-suspense-delay/slides/05-two-rules.html</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://viveksambath.github.io/react-lazy-suspense-delay/slides/06-before-after.html</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://viveksambath.github.io/react-lazy-suspense-delay/slides/07-fix-1.html</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://viveksambath.github.io/react-lazy-suspense-delay/slides/08-fix-2.html</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://viveksambath.github.io/react-lazy-suspense-delay/slides/09-the-code.html</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://viveksambath.github.io/react-lazy-suspense-delay/slides/10-results.html</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://viveksambath.github.io/react-lazy-suspense-delay/slides/11-on-screen.html</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://viveksambath.github.io/react-lazy-suspense-delay/slides/12-another-way.html</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://viveksambath.github.io/react-lazy-suspense-delay/slides/13-takeaways.html</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://viveksambath.github.io/react-lazy-suspense-delay/demo/</loc><lastmod>2026-11-11</lastmod></url>
 </urlset>

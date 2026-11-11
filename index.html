@@ -1,79 +1,808 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-IN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>React.lazy, Suspense &amp; the Hidden 300 ms Delay | Slides</title>
-<meta name="description" content="A simple, illustrated slide deck on why React.lazy and Suspense add a hidden 300 ms delay, and how not suspending made widgets appear about 200 ms sooner.">
+<title>React.lazy() + Suspense: Fallback &amp; the Hidden 300 ms Reveal Delay (Tanglish Slides)</title>
+<meta name="description" content="Tanglish slides for React developers: React.lazy(), Suspense, fallback UI, useTransition and why React holds back suspended content for up to 300 ms, with a built-in interactive demo.">
+<meta name="keywords" content="React.lazy, Suspense, fallback, useTransition, code splitting, lazy loading, React 19, FALLBACK_THROTTLE_MS, Tanglish, React tutorial">
 <meta name="robots" content="index, follow">
-<meta name="theme-color" content="#1e1f22">
+<meta name="theme-color" content="#2a2c31">
 <link rel="canonical" href="https://viveksambath.github.io/react-lazy-suspense-delay/">
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="React.lazy &amp; the Hidden 300 ms Delay (slides)">
-<meta property="og:title" content="React.lazy, Suspense &amp; the Hidden 300 ms Delay | Slides">
-<meta property="og:description" content="A simple, illustrated slide deck on why React.lazy and Suspense add a hidden 300 ms delay, and how not suspending made widgets appear about 200 ms sooner.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232a2c31'/%3E%3Ccircle cx='32' cy='34' r='20' fill='none' stroke='%234a4d55' stroke-width='6'/%3E%3Cpath d='M32 14 A20 20 0 0 1 51 28' fill='none' stroke='%23f2b250' stroke-width='6' stroke-linecap='round'/%3E%3Crect x='28' y='5' width='8' height='6' rx='2' fill='%2361dafb'/%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="React.lazy + Suspense (Tanglish slides)">
+<meta property="og:title" content="React.lazy() + Suspense: Fallback &amp; the Hidden 300 ms Reveal Delay">
+<meta property="og:description" content="Tanglish slides: lazy loading, Suspense fallback, useTransition and React's 300 ms reveal throttle, with an interactive demo.">
 <meta property="og:url" content="https://viveksambath.github.io/react-lazy-suspense-delay/">
 <meta property="og:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="React.lazy, Suspense and the Hidden 300 ms Delay">
+<meta property="og:locale" content="en_IN">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="React.lazy, Suspense &amp; the Hidden 300 ms Delay | Slides">
-<meta name="twitter:description" content="A simple, illustrated slide deck on why React.lazy and Suspense add a hidden 300 ms delay, and how not suspending made widgets appear about 200 ms sooner.">
+<meta name="twitter:title" content="React.lazy() + Suspense: Fallback &amp; the Hidden 300 ms Reveal Delay">
+<meta name="twitter:description" content="Tanglish slides: lazy loading, Suspense fallback, useTransition and React's 300 ms reveal throttle.">
 <meta name="twitter:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"PresentationDigitalDocument","name":"React.lazy, Suspense and the Hidden 300 ms Delay","description":"A simple, illustrated slide deck on why React.lazy and Suspense add a hidden 300 ms delay, and how not suspending made widgets appear about 200 ms sooner.","url":"https://viveksambath.github.io/react-lazy-suspense-delay/","inLanguage":"en","image":"https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png","keywords":"React, React.lazy, Suspense, performance, FALLBACK_THROTTLE_MS, code splitting, Chrome extension","isBasedOn":{"@type":"BlogPosting","headline":"React.lazy, Suspense and the Hidden 300 ms Delay","url":"https://tabwidgets.com/blog/react-lazy-suspense-delay","datePublished":"2026-10-29","author":{"@type":"Person","name":"Matthew Wong"}}}</script>
-<link rel="stylesheet" href="assets/style.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "React.lazy() + Suspense: Fallback & the Hidden 300 ms Reveal Delay",
+  "description": "Tanglish slides explaining React.lazy(), Suspense fallback UI, useTransition and React's 300 ms reveal throttle, with an interactive demo.",
+  "inLanguage": "en-IN",
+  "datePublished": "2026-11-11",
+  "dateModified": "2026-11-11",
+  "author": { "@type": "Person", "name": "VivekSambath", "url": "https://github.com/VivekSambath" },
+  "image": "https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png",
+  "mainEntityOfPage": "https://viveksambath.github.io/react-lazy-suspense-delay/",
+  "isBasedOn": {
+    "@type": "BlogPosting",
+    "headline": "React.lazy, Suspense and the Hidden 300 ms Delay",
+    "url": "https://tabwidgets.com/blog/react-lazy-suspense-delay",
+    "author": { "@type": "Person", "name": "Matthew Wong" },
+    "datePublished": "2026-10-29"
+  }
+}
+</script>
+
 <style>
-  .cover-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 3rem; align-items: center; }
-  .meta { display: flex; flex-wrap: wrap; gap: 2rem; align-items: center; margin: 0.4rem 0 1.4rem; }
-  .author { display: flex; gap: 0.8rem; align-items: center; }
-  .avatar { width: 2.7rem; height: 2.7rem; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--border-strong); font-weight: 700; color: var(--accent); }
-  .author strong, .meta-item strong { display: block; font-size: 0.98rem; }
-  .author span, .meta-item span { font-size: 0.82rem; color: var(--dim); }
-  .hint { margin-top: 2.2rem; color: var(--dim); font-size: 0.86rem; }
-  .watch { width: 100%; max-width: 330px; justify-self: center; }
-  .watch .arc { stroke-dasharray: 0 1000; animation: arc 1.6s 0.5s cubic-bezier(0.3, 0.6, 0.2, 1) forwards; }
-  @keyframes arc { to { stroke-dasharray: 150.8 1000; } }
-  @media (max-width: 760px) { .cover-grid { grid-template-columns: 1fr; } .watch { max-width: 220px; } }
-  @media (prefers-reduced-motion: reduce) { .watch .arc { animation: none; stroke-dasharray: 150.8 1000; } }
+  /* ============ Theme: dark charcoal / gray ============ */
+  :root {
+    --bg: #2a2c31;
+    --bg-soft: #303238;
+    --surface: #35373d;
+    --surface-2: #3e4047;
+    --border: #4a4d55;
+    --border-strong: #5c5f68;
+    --text: #f4f5f7;
+    --muted: #d0d3d9;
+    --dim: #a9adb6;
+    --blue: #61dafb;
+    --amber: #f2b250;
+    --green: #5cd08a;
+    --red: #f07a7a;
+    --violet: #b69cf5;
+    --blue-soft: rgba(97, 218, 251, 0.13);
+    --amber-soft: rgba(242, 178, 80, 0.13);
+    --green-soft: rgba(92, 208, 138, 0.15);
+    --red-soft: rgba(240, 122, 122, 0.13);
+    --radius: 14px;
+    --mono: "Cascadia Code", "JetBrains Mono", Consolas, ui-monospace, "SF Mono", Menlo, monospace;
+    --sans: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --nav-h: 60px;
+    color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { font-size: clamp(14px, calc(0.42vw + 0.5vh + 5px), 20px); }
+  html, body { height: 100%; }
+  body { margin: 0; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a { color: var(--blue); }
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ============ Deck & slides ============ */
+  .deck { position: fixed; inset: 4px 0 var(--nav-h) 0; }
+  .slide {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    padding: 2.4rem 2rem 2rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate3d(28px, 0, 0);
+    transition: opacity 0.28s ease, transform 0.28s ease, visibility 0s linear 0.28s;
+  }
+  .slide.is-before { transform: translate3d(-28px, 0, 0); }
+  .slide.is-active { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+  .slide-inner { max-width: 1120px; min-height: 100%; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; gap: 1.5rem; }
+  @media (max-width: 640px) { .slide { padding: 1.6rem 16px 1.6rem; } }
+
+  .kicker { margin: 0 0 0.5rem; font: 700 0.75rem/1 var(--sans); letter-spacing: 0.16em; text-transform: uppercase; color: var(--blue); }
+  h1, h2 { margin: 0; letter-spacing: -0.02em; line-height: 1.15; }
+  h2 { font-size: 2.1rem; }
+  h3 { margin: 0 0 0.4rem; font-size: 1.05rem; }
+  .lead { margin: 0.6rem 0 0; font-size: 1.15rem; color: var(--muted); max-width: 62ch; }
+  p { margin: 0; }
+  .muted { color: var(--muted); }
+  .dim { color: var(--dim); }
+  .small { font-size: 0.85rem; }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+  @media (max-width: 900px) { .grid-4, .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 680px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: minmax(0, 1fr); } h2 { font-size: 1.6rem; } }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; min-width: 0; }
+  .card p { color: var(--muted); font-size: 0.95rem; }
+  .card.blue { border-color: rgba(97, 218, 251, 0.45); }
+  .card.amber { border-color: rgba(242, 178, 80, 0.5); }
+  .card.green { border-color: rgba(92, 208, 138, 0.5); }
+  .card.red { border-color: rgba(240, 122, 122, 0.5); }
+
+  ul.points { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.55rem; }
+  ul.points li { position: relative; padding-left: 1.3rem; color: var(--muted); }
+  ul.points li::before { content: ""; position: absolute; left: 0.15rem; top: 0.6em; width: 7px; height: 7px; border-radius: 50%; background: var(--blue); }
+  ul.points li strong { color: var(--text); }
+
+  .callout { padding: 0.85rem 1.1rem; border-radius: 0 12px 12px 0; border-left: 4px solid var(--blue); background: var(--blue-soft); color: var(--muted); }
+  .callout.amber { border-color: var(--amber); background: var(--amber-soft); }
+  .callout.green { border-color: var(--green); background: var(--green-soft); }
+  .callout strong { color: var(--text); }
+
+  .tag { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font: 700 0.7rem var(--sans); letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid var(--border-strong); color: var(--dim); }
+  .tag.amber { color: var(--amber); border-color: rgba(242, 178, 80, 0.5); }
+  .tag.green { color: var(--green); border-color: rgba(92, 208, 138, 0.5); }
+  .tag.red { color: var(--red); border-color: rgba(240, 122, 122, 0.5); }
+  .tag.blue { color: var(--blue); border-color: rgba(97, 218, 251, 0.5); }
+
+  kbd { font: 600 0.8em var(--mono); padding: 0.08em 0.45em; border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 6px; background: var(--surface); color: var(--text); }
+  code { font-family: var(--mono); font-size: 0.88em; padding: 0.06em 0.35em; border-radius: 5px; background: var(--surface-2); color: #e6e8ec; font-variant-ligatures: none; }
+
+  /* ============ Code blocks ============ */
+  pre.code {
+    margin: 0;
+    padding: 1rem 1.15rem;
+    overflow-x: auto;
+    border-radius: 12px;
+    background: #222429;
+    border: 1px solid var(--border);
+    font: 0.86rem/1.65 var(--mono);
+    font-variant-ligatures: none;
+    tab-size: 2;
+  }
+  pre.code code { padding: 0; background: none; font-size: inherit; }
+  pre.code.tight { padding: 0.8rem 1rem; font-size: 0.76rem; line-height: 1.5; }
+  pre.code[data-label]::before { content: attr(data-label); display: block; margin: -0.2rem 0 0.6rem; font: 700 0.68rem var(--sans); letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+  .t-com { color: #98a0ad; font-style: italic; }
+  .t-str { color: #a8d8a0; }
+  .t-kw { color: #c792ea; }
+  .t-tag { color: #f07178; }
+  .t-fn { color: #82aaff; }
+  .t-type { color: #ffcb6b; }
+  .t-op { color: #89ddff; }
+
+  /* ============ Diagram parts ============ */
+  .flow { display: flex; align-items: stretch; flex-wrap: nowrap; }
+  .node { flex: 1 1 0; min-width: 0; padding: 0.85rem 0.7rem; border-radius: 12px; text-align: center; font-weight: 600; font-size: 0.95rem; background: var(--surface-2); border: 2px solid var(--border-strong); }
+  .node small { display: block; margin-top: 0.2rem; font-weight: 400; font-size: 0.78rem; color: var(--dim); }
+  .node.blue { border-color: var(--blue); background: var(--blue-soft); }
+  .node.amber { border-color: var(--amber); background: var(--amber-soft); }
+  .node.green { border-color: var(--green); background: var(--green-soft); }
+  .node.gray { border-color: var(--border-strong); }
+  .node.decision { border-style: dashed; border-color: var(--amber); }
+  .arrow { flex: 0 0 2rem; display: grid; place-items: center; color: var(--dim); font-size: 1.2rem; }
+  @media (max-width: 760px) { .flow { flex-direction: column; } .arrow { flex-basis: 1.6rem; transform: rotate(90deg); } }
+
+  /* bundle diagram (slide 2) */
+  .bundle { display: grid; gap: 0.5rem; }
+  .file { border-radius: 10px; border: 2px solid var(--border-strong); background: var(--bg-soft); padding: 0.6rem 0.75rem; }
+  .file > b { display: block; margin-bottom: 0.45rem; font: 700 0.8rem var(--mono); color: var(--dim); }
+  .mod { display: inline-block; margin: 0 0.35rem 0.35rem 0; padding: 0.3rem 0.65rem; border-radius: 7px; font: 600 0.85rem var(--mono); background: var(--surface-2); }
+  .mod.dash { background: var(--amber-soft); color: var(--amber); box-shadow: inset 0 0 0 1px rgba(242, 178, 80, 0.5); }
+  .file.chunk { border-style: dashed; border-color: var(--amber); }
+  .bundle-note { font-size: 0.85rem; color: var(--dim); }
+  .bundle-link { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--amber); padding-left: 0.4rem; }
+
+  /* timeline (slide 4) */
+  .lane { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 1rem; align-items: center; }
+  .lane-label { font-weight: 700; }
+  .lane-label small { display: block; font-weight: 400; color: var(--dim); font-size: 0.8rem; }
+  .track { --max: 440; position: relative; height: 2.8rem; border-radius: 10px; background: var(--bg-soft); border: 1px solid var(--border); }
+  .seg { position: absolute; top: 5px; bottom: 5px; left: calc(var(--from) / var(--max) * 100%); width: calc((var(--to) - var(--from)) / var(--max) * 100%); border-radius: 7px; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; font-size: 0.8rem; font-weight: 700; }
+  .seg.gray { background: #5a5d66; color: #eceef1; }
+  .seg.green { background: var(--green-soft); color: var(--green); box-shadow: inset 0 0 0 2px rgba(92, 208, 138, 0.6); }
+  .seg.old { background: rgba(182, 156, 245, 0.16); color: var(--violet); box-shadow: inset 0 0 0 2px rgba(182, 156, 245, 0.5); }
+  .seg.hold { background: repeating-linear-gradient(135deg, rgba(242, 178, 80, 0.22) 0 8px, rgba(242, 178, 80, 0.08) 8px 16px); color: var(--amber); box-shadow: inset 0 0 0 2px rgba(242, 178, 80, 0.55); }
+  .mark { position: absolute; top: -6px; bottom: -6px; left: calc(var(--at) / var(--max) * 100%); width: 0; border-left: 2px dashed var(--blue); }
+  .step-dots { position: relative; height: 2.2rem; margin-left: 12rem; }
+  .step-dot { position: absolute; top: 0.2rem; left: calc(var(--at) / var(--max) * 100%); transform: translateX(-50%); display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--border-strong); font: 700 0.75rem var(--mono); color: var(--blue); }
+  .legend-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.6rem; font-size: 0.82rem; color: var(--muted); }
+  .legend-steps b { color: var(--blue); font-family: var(--mono); margin-right: 0.25rem; }
+  @media (max-width: 760px) { .lane { grid-template-columns: 1fr; gap: 0.4rem; } .step-dots { margin-left: 0; } .legend-steps { grid-template-columns: 1fr 1fr; } }
+
+  /* mini screens (slides 6 & 7) */
+  .screens { display: grid; grid-template-columns: 9rem repeat(3, minmax(0, 1fr)); gap: 0.6rem; align-items: center; }
+  .screen { position: relative; aspect-ratio: 16 / 9; border-radius: 9px; border: 1px solid var(--border-strong); background: var(--bg-soft); display: grid; place-items: center; text-align: center; font-size: 0.82rem; padding: 0.4rem; }
+  .screen.fallback { color: var(--amber); border-color: rgba(242, 178, 80, 0.55); }
+  .screen.new { color: var(--green); border-color: rgba(92, 208, 138, 0.55); }
+  .screen .pending { position: absolute; top: 6px; right: 8px; font-size: 0.68rem; color: var(--blue); }
+  .screens .row-label { font-weight: 700; font-size: 0.9rem; }
+  .screens .row-label small { display: block; font-weight: 400; color: var(--dim); font-size: 0.75rem; }
+  @media (max-width: 680px) { .screens { grid-template-columns: repeat(3, minmax(0, 1fr)); } .screens .row-label { grid-column: 1 / -1; } }
+
+  .ui-mock { position: relative; height: 9rem; border-radius: 10px; background: var(--bg-soft); border: 1px solid var(--border); padding: 0.7rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; overflow: hidden; }
+  .ui-mock .blk { border-radius: 6px; background: var(--surface-2); }
+  .ui-mock .blk.skeleton { background: linear-gradient(90deg, var(--surface) 0%, #4a4d55 50%, var(--surface) 100%) 0 0 / 200% 100%; animation: shimmer 1.3s linear infinite; }
+  .ui-mock .overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(20, 21, 24, 0.82); }
+  .spinner { width: 3.2rem; height: 3.2rem; border-radius: 50%; border: 5px solid var(--border-strong); border-top-color: var(--red); animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  /* ============ Demo (slide 5) ============ */
+  .demo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 1.2rem; align-items: start; }
+  @media (max-width: 860px) { .demo { grid-template-columns: minmax(0, 1fr); } }
+  .controls { display: grid; gap: 1rem; }
+  .field-label { display: block; margin-bottom: 0.4rem; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
+  .presets { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+    padding: 0.55rem 0.95rem; border-radius: 10px; border: 1px solid var(--border-strong);
+    background: var(--surface-2); color: var(--text); font: 600 0.9rem var(--sans); cursor: pointer;
+  }
+  .btn:hover { background: #474a52; }
+  .btn[aria-pressed="true"] { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+  .btn.primary { border-color: rgba(97, 218, 251, 0.6); background: var(--blue-soft); color: var(--blue); }
+  .btn.primary:hover { background: rgba(97, 218, 251, 0.22); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .range-row { display: flex; align-items: center; gap: 0.8rem; }
+  input[type="range"] { flex: 1; accent-color: var(--blue); }
+  output { min-width: 4.5rem; text-align: right; font: 700 0.95rem var(--mono); }
+  .radio-row { display: grid; gap: 0.45rem; }
+  .radio-row label { display: flex; gap: 0.55rem; align-items: flex-start; padding: 0.55rem 0.7rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-soft); cursor: pointer; font-size: 0.92rem; }
+  .radio-row label:has(input:checked) { border-color: var(--blue); background: var(--blue-soft); }
+  .radio-row input { accent-color: var(--blue); margin-top: 0.25rem; }
+  .radio-row small { display: block; color: var(--dim); font-size: 0.8rem; }
+  .actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+  .stage { height: 8.5rem; border-radius: 12px; border: 1px dashed var(--border-strong); background: var(--bg-soft); display: grid; place-items: center; padding: 0.8rem; color: var(--dim); }
+  .stage .skeleton-card { width: 100%; height: 100%; border-radius: 10px; display: grid; place-items: center; color: var(--amber); font-weight: 600; background: linear-gradient(90deg, var(--surface) 0%, #464950 50%, var(--surface) 100%) 0 0 / 200% 100%; animation: shimmer 1.2s linear infinite; }
+  .stage .profile { width: 100%; height: 100%; display: flex; align-items: center; gap: 1rem; padding: 0 1rem; border-radius: 10px; background: var(--green-soft); box-shadow: inset 0 0 0 2px rgba(92, 208, 138, 0.55); animation: pop 0.2s ease-out; }
+  .profile .avatar { flex: none; width: 3.4rem; height: 3.4rem; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--green); font-weight: 800; }
+  .profile b { display: block; font-size: 1.1rem; }
+  @keyframes pop { from { opacity: 0.3; transform: scale(0.98); } }
+  .demo-track { --max: 600; position: relative; height: 1.9rem; margin-top: 0.9rem; border-radius: 8px; background: var(--bg-soft); border: 1px solid var(--border); overflow: hidden; }
+  .demo-track .seg { top: 4px; bottom: 4px; font-size: 0.72rem; }
+  .demo-axis { display: flex; justify-content: space-between; margin-top: 0.25rem; font: 0.7rem var(--mono); color: var(--dim); }
+  .log { margin: 0.9rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.35rem; font-size: 0.88rem; min-height: 7.5rem; }
+  .log li { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); gap: 0.6rem; padding: 0.35rem 0.6rem; border-radius: 8px; background: var(--bg-soft); border-left: 3px solid var(--border-strong); }
+  .log li b { font-family: var(--mono); color: var(--text); }
+  .log li.blue { border-left-color: var(--blue); }
+  .log li.amber { border-left-color: var(--amber); }
+  .log li.green { border-left-color: var(--green); }
+  .log li.empty { grid-template-columns: 1fr; color: var(--dim); border-left-color: transparent; }
+  .sim-note { font-size: 0.82rem; color: var(--dim); }
+
+  /* ============ Recap ============ */
+  .defs { display: grid; gap: 0.6rem; }
+  .defs div { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 1rem; align-items: baseline; padding: 0.7rem 1rem; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+  .defs code { font-size: 0.95rem; color: var(--blue); }
+  .quote { margin: 0; padding: 1.1rem 1.3rem; border-radius: 14px; background: linear-gradient(135deg, rgba(97, 218, 251, 0.1), transparent 70%), var(--surface); border: 1px solid rgba(97, 218, 251, 0.4); font-size: 1.15rem; font-weight: 600; }
+  @media (max-width: 680px) { .defs div { grid-template-columns: 1fr; gap: 0.2rem; } }
+
+  /* ============ Cover ============ */
+  .cover h1 { font-size: 3.6rem; }
+  .cover h1 span { color: var(--blue); }
+  .cover .subtitle { margin-top: 0.8rem; font-size: 1.35rem; color: var(--amber); font-weight: 600; }
+  .concept .icon { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; margin-bottom: 0.7rem; border-radius: 10px; background: var(--surface-2); font-size: 1.2rem; }
+  .concept.blue .icon { color: var(--blue); } .concept.amber .icon { color: var(--amber); } .concept.green .icon { color: var(--green); } .concept.red .icon { color: var(--red); }
+  @media (max-width: 680px) { .cover h1 { font-size: 2.4rem; } }
+
+  /* ============ Navigation ============ */
+  .progress { position: fixed; top: 0; left: 0; right: 0; height: 4px; background: rgba(255, 255, 255, 0.06); z-index: 5; }
+  .progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--blue), var(--violet)); transition: width 0.3s ease; }
+  .nav { position: fixed; left: 0; right: 0; bottom: 0; height: var(--nav-h); display: flex; align-items: center; gap: 0.7rem; padding: 0 1.2rem; border-top: 1px solid var(--border); background: #26282d; z-index: 5; }
+  .nav-title { margin-right: auto; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--dim); font-size: 0.85rem; }
+  .nav-count { font: 600 0.85rem var(--mono); color: var(--muted); white-space: nowrap; }
+  .nav .btn { padding: 0.45rem 0.8rem; }
+  @media (max-width: 520px) { .nav-title { display: none; } .nav-count { margin-right: auto; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide, .progress span { transition: none !important; }
+    .slide { transform: none !important; }
+    .skeleton, .skeleton-card, .ui-mock .blk.skeleton, .spinner, .stage .profile { animation: none !important; }
+  }
 </style>
 </head>
-<body data-slide="1">
-<main class="slide">
-  <div class="cover-grid">
-    <div>
-      <div class="kicker">Tab Widgets · Engineering blog</div>
-      <h1 class="display">React.lazy, Suspense<br>and the <span class="hl">Hidden 300&nbsp;ms</span> Delay</h1>
-      <p class="sub">Every new tab is a cold start. The team set out to shrink the bundle, found that bytes weren't the problem, and traced the delay to how React reveals lazy-loaded and suspended content.</p>
-      <div class="meta">
-        <div class="author">
-          <span class="avatar">MW</span>
-          <div><strong>Matthew Wong</strong><span>@mattywong</span></div>
-        </div>
-        <div class="meta-item"><span>Published</span><strong>October 29, 2026</strong></div>
-      </div>
-      <div class="pills">
-        <span class="pill">Performance</span>
-        <span class="pill">Engineering</span>
-        <span class="pill accent">React</span>
-        <span class="pill">Chrome extension</span>
-      </div>
-      <p class="hint">Press <kbd>→</kbd> or <kbd>Space</kbd> to begin &nbsp;·&nbsp; <kbd>←</kbd> back &nbsp;·&nbsp; <kbd>F</kbd> fullscreen</p>
-    </div>
+<body>
+<a class="sr-only" href="#deck">Skip to slides</a>
+<div class="progress" aria-hidden="true"><span id="progress"></span></div>
 
-    <svg class="watch" viewBox="0 0 220 240" role="img" aria-label="Stopwatch showing a 300 millisecond hold">
-      <rect x="96" y="6" width="28" height="14" rx="4" fill="#3c3e45"/>
-      <rect x="106" y="18" width="8" height="12" fill="#3c3e45"/>
-      <circle cx="110" cy="132" r="96" fill="#26272b" stroke="#3c3e45" stroke-width="2"/>
-      <circle cx="110" cy="132" r="80" fill="none" stroke="#323339" stroke-width="14"/>
-      <!-- 300 of 1000 ms: circumference 2πr ≈ 502.7 → 30% ≈ 150.8 -->
-      <circle class="arc" cx="110" cy="132" r="80" fill="none" stroke="#f2b250" stroke-width="14" stroke-linecap="round" transform="rotate(-90 110 132)"/>
-      <text x="110" y="132" text-anchor="middle" fill="#e9e9ec" font-family="Segoe UI, system-ui, sans-serif" font-size="36" font-weight="700">300 ms</text>
-      <text x="110" y="158" text-anchor="middle" fill="#73767f" font-family="Consolas, monospace" font-size="10.5">FALLBACK_THROTTLE_MS</text>
-    </svg>
-  </div>
+<main class="deck" id="deck" aria-roledescription="slide deck" aria-label="React.lazy and Suspense slides">
+
+  <!-- ======================= 1. Introduction ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="1 of 8: Introduction" data-title="Introduction">
+    <div class="slide-inner cover">
+      <div>
+        <p class="kicker">React · Tanglish edition</p>
+        <h1><span>React.lazy()</span> + Suspense</h1>
+        <p class="subtitle">Component-ah lazy-ah load pannumbodhu fallback eppadi work aaguthu?</p>
+      </div>
+      <div class="grid-4">
+        <div class="card concept blue"><div class="icon">✂</div><h3>Code splitting</h3><p>Periya bundle-ah chinna chinna chunks-ah split pannrom.</p></div>
+        <div class="card concept amber"><div class="icon">⤓</div><h3>Lazy loading</h3><p>Component theva padumbodhu mattum thaan adhoda code load aagum.</p></div>
+        <div class="card concept green"><div class="icon">⏳</div><h3>Suspense fallback</h3><p>Load aagura varaikkum oru temporary UI kaattum.</p></div>
+        <div class="card concept red"><div class="icon">⏱</div><h3>Delayed reveal</h3><p>Code ready aanaalum React reveal-ah konjam hold pannalaam. Idhu thaan article-oda main point.</p></div>
+      </div>
+      <p class="dim small">Based on <a href="https://tabwidgets.com/blog/react-lazy-suspense-delay" rel="noopener">“React.lazy, Suspense and the Hidden 300 ms Delay”</a> by Matthew Wong (Tab Widgets, 29 Oct 2026). Use <kbd>←</kbd> <kbd>→</kbd> or <kbd>Space</kbd> to move.</p>
+    </div>
+  </section>
+
+  <!-- ======================= 2. Normal vs Lazy ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="2 of 8: Normal import vs lazy import" data-title="Normal import vs lazy import">
+    <div class="slide-inner">
+      <header>
+        <p class="kicker">Step 1</p>
+        <h2>Normal import vs lazy import</h2>
+      </header>
+      <div class="grid-2">
+        <div class="card">
+          <span class="tag">Normal import</span>
+          <pre class="code" style="margin-top:.8rem"><code>import Dashboard from './Dashboard';</code></pre>
+          <div class="bundle" style="margin-top:1rem" aria-label="Diagram: one main bundle containing App and Dashboard">
+            <div class="file"><b>main.js</b><span class="mod">App</span><span class="mod dash">Dashboard</span></div>
+            <p class="bundle-note">Startup-laye ellam serndhu load aagum.</p>
+          </div>
+        </div>
+        <div class="card amber">
+          <span class="tag amber">Lazy import</span>
+          <pre class="code" style="margin-top:.8rem"><code>import { lazy } from 'react';
+
+const Dashboard = lazy(() =&gt; import('./Dashboard'));</code></pre>
+          <div class="bundle" style="margin-top:1rem" aria-label="Diagram: main bundle with App, separate Dashboard chunk loaded on first render">
+            <div class="file"><b>main.js</b><span class="mod">App</span></div>
+            <div class="bundle-link">↳ first render-la mattum load</div>
+            <div class="file chunk"><b>Dashboard.[hash].js</b><span class="mod dash">Dashboard</span></div>
+          </div>
+        </div>
+      </div>
+      <ul class="points">
+        <li><strong>Normal import</strong>: regular module import path. Dashboard code main bundle-oda serndhu start-laye load aagum.</li>
+        <li><strong><code>lazy()</code></strong>: React adha <strong>first time render pannumbodhu</strong> thaan module load pannum.</li>
+        <li>Bundler (Vite, webpack, Rspack) support pannaa, adhu <strong>separate chunk</strong>-ah split aagum, so first load chinna-thaa irukkum.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ======================= 3. What is Suspense ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="3 of 8: What is Suspense?" data-title="What is Suspense?">
+    <div class="slide-inner">
+      <header>
+        <p class="kicker">Step 2</p>
+        <h2>What is Suspense?</h2>
+      </header>
+      <div class="grid-2" style="align-items:start">
+        <pre class="code" data-label="App.jsx"><code>import { Suspense, lazy } from 'react';
+
+const Profile = lazy(() =&gt; import('./Profile'));
+
+function App() {
+  return (
+    &lt;Suspense fallback={&lt;p&gt;Loading profile...&lt;/p&gt;}&gt;
+      &lt;Profile /&gt;
+    &lt;/Suspense&gt;
+  );
+}</code></pre>
+        <ul class="points">
+          <li><strong><code>lazy()</code></strong> component code-ah load pannum.</li>
+          <li><strong><code>Suspense</code></strong> oru boundary: “inside-la edhavadhu wait pannaa, idha kaattu.”</li>
+          <li><strong><code>fallback</code></strong> = lazy component wait pannumbodhu kaattura temporary UI.</li>
+          <li>Component ready aanadhum, React <strong>actual component-ah</strong> kaattum.</li>
+        </ul>
+      </div>
+      <div class="flow" aria-label="Flow: Render Profile, module pending, show fallback, module ready, show Profile">
+        <div class="node blue">Render &lt;Profile /&gt;</div>
+        <div class="arrow">→</div>
+        <div class="node decision">Module pending?<small>code innum varala</small></div>
+        <div class="arrow">→</div>
+        <div class="node amber">Show fallback<small>“Loading profile...”</small></div>
+        <div class="arrow">→</div>
+        <div class="node gray">Module ready<small>chunk vandhuduchu</small></div>
+        <div class="arrow">→</div>
+        <div class="node green">Show Profile</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 4. Understand the delay ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="4 of 8: Understand the delay" data-title="Understand the delay">
+    <div class="slide-inner">
+      <header>
+        <p class="kicker">Article-oda main point</p>
+        <h2>Code ready aanaalum, reveal udane nadakkaadhu</h2>
+        <p class="lead">Tab Widgets-la widget code <strong>~100 ms</strong>-la ready. Aana widgets screen-la <strong>~380 ms</strong>-la thaan vandhuchu.</p>
+      </header>
+
+      <div class="card">
+        <div class="step-dots" aria-hidden="true">
+          <span class="step-dot" style="--max:440;--at:0">1</span>
+          <span class="step-dot" style="--max:440;--at:40">2</span>
+          <span class="step-dot" style="--max:440;--at:80">3</span>
+          <span class="step-dot" style="--max:440;--at:100">4</span>
+          <span class="step-dot" style="--max:440;--at:380">5</span>
+        </div>
+        <div class="lane">
+          <div class="lane-label">Initial render<small>normal Suspense</small></div>
+          <div class="track" aria-label="Fallback from 80 to 380 ms, code ready at 100 ms, revealed at 380 ms">
+            <span class="seg gray" style="--from:80;--to:100"></span>
+            <span class="seg hold" style="--from:100;--to:380">React holds the reveal</span>
+            <span class="seg green" style="--from:380;--to:440">shown</span>
+            <span class="mark" style="--at:100"></span>
+          </div>
+        </div>
+        <div class="lane" style="margin-top:1rem">
+          <div class="lane-label">Transition update<small>content already visible</small></div>
+          <div class="track" aria-label="Old content stays visible until new content is ready">
+            <span class="seg old" style="--from:0;--to:330">old content stays · isPending</span>
+            <span class="seg green" style="--from:330;--to:440">new</span>
+          </div>
+        </div>
+        <div class="legend-steps" style="margin-top:1rem">
+          <span><b>1</b>Render starts</span>
+          <span><b>2</b>Lazy module pending</span>
+          <span><b>3</b>Fallback appears</span>
+          <span><b>4</b>Module resolves</span>
+          <span><b>5</b>Component revealed</span>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="callout amber"><strong>Why the wait?</strong> React suspended content-ah <strong>at most once every 300 ms</strong> thaan reveal pannum, last fallback kaattuna time-la irundhu (<code>FALLBACK_THROTTLE_MS</code>). Flicker avoid panna intentional-ah vechirukkanga. Idhu <strong>throttle</strong>, ella component-kum fixed delay illa: code 300 ms-ku apparam vandha, extra wait illa.</div>
+        <div class="callout"><strong>Transition vs normal:</strong> already visible content-ah transition update pannaa, React old content-ah screen-la vechchikkum (fallback flash illa). Aana <strong>first time mount</strong> aagura boundary-ku fallback kandippa varum, transition skip pannaadhu.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 5. Interactive demo ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="5 of 8: Interactive demo" data-title="Interactive demo">
+    <div class="slide-inner">
+      <header>
+        <p class="kicker">Try it · simulation</p>
+        <h2>Loading states-ah neengale try pannunga</h2>
+      </header>
+
+      <div class="demo">
+        <div class="card controls">
+          <div>
+            <span class="field-label" id="dur-label">Loading duration</span>
+            <div class="presets" role="group" aria-labelledby="dur-label">
+              <button class="btn" type="button" data-preset="40">Very fast</button>
+              <button class="btn" type="button" data-preset="400">Moderate</button>
+              <button class="btn" type="button" data-preset="1500">Slow</button>
+            </div>
+            <div class="range-row" style="margin-top:.7rem">
+              <input id="duration" type="range" min="0" max="2000" step="10" value="40" aria-label="Simulated loading duration in milliseconds">
+              <output id="duration-out" for="duration">40 ms</output>
+            </div>
+          </div>
+          <fieldset style="border:0;margin:0;padding:0">
+            <legend class="field-label">How the component is shown</legend>
+            <div class="radio-row">
+              <label><input type="radio" name="mode" value="suspense" checked><span>Suspense fallback<small>React 19 style: reveal throttled to 300 ms after the fallback</small></span></label>
+              <label><input type="radio" name="mode" value="manual"><span>Manual placeholder (no suspend)<small>Article-oda fix: placeholder-ah neenga kaattunga, ready aanadhum swap</small></span></label>
+            </div>
+          </fieldset>
+          <div class="actions">
+            <button class="btn primary" type="button" id="load-btn">▶ Load component</button>
+            <button class="btn" type="button" id="reset-btn">↺ Reset</button>
+          </div>
+          <p class="sim-note"><strong>Simulation:</strong> idhu React-oda behaviour-ah model pannra educational demo. Real timing browser, device, network-ku etha maadhiri maarum.</p>
+        </div>
+
+        <div class="card">
+          <div class="stage" id="stage" aria-live="polite">Click “Load component”</div>
+          <div class="demo-track" id="demo-track" aria-hidden="true">
+            <span class="seg gray" id="bar-fallback" style="--from:0;--to:0"></span>
+            <span class="seg green" id="bar-shown" style="--from:0;--to:0"></span>
+            <span class="mark" id="bar-code" style="--at:-50"></span>
+          </div>
+          <div class="demo-axis" aria-hidden="true"><span>0</span><span id="axis-mid">300 ms</span><span id="axis-max">600 ms</span></div>
+          <ul class="log" id="log" aria-live="polite"><li class="empty">Status log inga varum.</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 6. useTransition ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="6 of 8: Suspense with useTransition" data-title="Suspense with useTransition">
+    <div class="slide-inner">
+      <header>
+        <p class="kicker">Step 3</p>
+        <h2>Suspense + <code style="font-size:.85em">useTransition</code></h2>
+      </header>
+      <div class="grid-2" style="align-items:start">
+        <pre class="code tight" data-label="App.jsx"><code>import { Suspense, lazy, useState, useTransition } from 'react';
+
+const Dashboard = lazy(() =&gt; import('./Dashboard'));
+
+export default function App() {
+  const [page, setPage] = useState('home');
+  const [isPending, startTransition] = useTransition();
+
+  function openDashboard() {
+    startTransition(() =&gt; {
+      setPage('dashboard');
+    });
+  }
+
+  return (
+    &lt;&gt;
+      &lt;button onClick={openDashboard}&gt;
+        Open dashboard
+      &lt;/button&gt;
+
+      {isPending &amp;&amp; &lt;p&gt;Updating...&lt;/p&gt;}
+
+      &lt;Suspense fallback={&lt;p&gt;Loading dashboard...&lt;/p&gt;}&gt;
+        {page === 'dashboard' ? &lt;Dashboard /&gt; : &lt;p&gt;Home page&lt;/p&gt;}
+      &lt;/Suspense&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+        <div style="display:grid;gap:1.1rem">
+          <ul class="points">
+            <li><strong><code>useTransition()</code></strong> update-ah <strong>non-urgent</strong>-nu mark pannum.</li>
+            <li>Already reveal aana content (“Home page”) transition pending-la irukkumbodhu <strong>screen-la-ye irukkum</strong>.</li>
+            <li><strong><code>isPending</code></strong> vechu optional-ah “Updating...” maadhiri chinna indicator kaattalaam.</li>
+            <li>Suspense fallback-um transition pending UI-um <strong>related, aana different</strong> concepts.</li>
+          </ul>
+          <div class="card" aria-label="Diagram comparing a normal update and a transition update">
+            <div class="screens">
+              <span class="row-label">Normal update<small>setPage()</small></span>
+              <div class="screen">Home page</div>
+              <div class="screen fallback">Loading dashboard...</div>
+              <div class="screen new">Dashboard</div>
+              <span class="row-label">Transition<small>startTransition()</small></span>
+              <div class="screen">Home page</div>
+              <div class="screen">Home page<span class="pending">Updating...</span></div>
+              <div class="screen new">Dashboard</div>
+            </div>
+          </div>
+          <p class="dim small">Note: first time mount aagura Suspense boundary-ku transition fallback-ah skip pannaadhu. Development build-la behaviour konjam different-ah irukkalaam, so production build-la verify pannunga.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 7. Common mistakes ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="7 of 8: Common mistakes" data-title="Common mistakes">
+    <div class="slide-inner">
+      <header>
+        <p class="kicker">Watch out</p>
+        <h2>Common mistakes</h2>
+      </header>
+      <div class="grid-3">
+        <div class="card red"><h3>1 · Suspense illaama <code>lazy()</code></h3><p>Lazy component suspend aagumbodhu mela oru Suspense boundary kandippa irukkanum.</p></div>
+        <div class="card red"><h3>2 · Boundary romba mela / keezha</h3><p>Romba mela: full page blank. Romba keezha: spinners everywhere. Loading experience yosichu vainga.</p></div>
+        <div class="card red"><h3>3 · Tiny delay-ku periya spinner</h3><p>Flash maadhiri theriyum. Same size skeleton use pannunga, illa ondrum kaattaadheenga.</p></div>
+        <div class="card red"><h3>4 · Fallback udane vandhu-poidum-nu nenaikkradhu</h3><p>React reveal-ah throttle pannum. Fast-ah load aagura code-ku suspend pannaama placeholder-ah neengale kaattunga (article fix: ~200 ms faster).</p></div>
+        <div class="card red"><h3>5 · <code>useTransition</code> = Suspense-nu confuse</h3><p>Transition = update priority. Suspense = loading boundary. Rendum serndhu work pannum, aana onnu illa.</p></div>
+        <div class="card red"><h3>6 · Ella async-ayum Suspense handle pannum-nu</h3><p><code>lazy()</code>, <code>use()</code>, Suspense-ready frameworks mattum. Normal <code>useEffect</code> fetch-ku Suspense trigger aagaadhu.</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <span class="tag red">Bad</span>
+          <div class="ui-mock" style="margin-top:.7rem" aria-label="Bad: the whole page is covered by a big spinner for a tiny delay">
+            <div class="blk"></div><div class="blk"></div><div class="blk"></div><div class="blk"></div>
+            <div class="overlay"><div class="spinner"></div></div>
+          </div>
+          <p class="dim small" style="margin-top:.5rem">50 ms load-ku full-page spinner: flash, layout jump.</p>
+        </div>
+        <div class="card">
+          <span class="tag green">Good</span>
+          <div class="ui-mock" style="margin-top:.7rem" aria-label="Good: the page stays, only the loading card shows a same-size skeleton">
+            <div class="blk"></div><div class="blk skeleton"></div><div class="blk"></div><div class="blk"></div>
+          </div>
+          <p class="dim small" style="margin-top:.5rem">Page apdiye irukkum; loading aagura card-la mattum same-size skeleton.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 8. Recap ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="8 of 8: Recap" data-title="Recap">
+    <div class="slide-inner">
+      <header>
+        <p class="kicker">Recap</p>
+        <h2>Quick summary</h2>
+      </header>
+      <div class="defs">
+        <div><code>lazy()</code><span class="muted">Component code-ah theva padumbodhu load pannum.</span></div>
+        <div><code>Suspense</code><span class="muted">Suspended content-ku fallback UI define pannum.</span></div>
+        <div><code>fallback</code><span class="muted">Temporary loading interface.</span></div>
+        <div><code>useTransition()</code><span class="muted">Update-ah non-urgent-ah mark pannum; transitions-la loading flash avoid panna help pannum.</span></div>
+      </div>
+      <blockquote class="quote">“Lazy loading component-ah load pannum; Suspense loading state-ah handle pannum. Transition use pannumbodhu already visible content smooth-ah maintain panna React-ku help kidaikkum.”</blockquote>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Interview answer (30 sec)</h3>
+          <p><code>React.lazy</code> splits a component into its own chunk and loads it on first render. While it loads, the nearest <code>Suspense</code> boundary shows its fallback. React throttles revealing suspended content, at most once every 300 ms after a fallback appears, to avoid flicker, so even fast code can wait. <code>useTransition</code> keeps already-visible content on screen during updates instead of showing a fallback, but it doesn't skip the fallback of a boundary mounting for the first time.</p>
+        </div>
+        <div class="card">
+          <h3>Learn more</h3>
+          <ul class="points">
+            <li><a href="https://tabwidgets.com/blog/react-lazy-suspense-delay" rel="noopener">Original article</a>: the full story and numbers</li>
+            <li><a href="demo/">Live React demo app</a>: real React 19, four approaches side by side</li>
+            <li><a href="https://react.dev/reference/react/Suspense" rel="noopener">React docs: Suspense</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
-<script src="assets/deck.js"></script>
+
+<nav class="nav" aria-label="Slide controls">
+  <span class="nav-title" id="nav-title">Introduction</span>
+  <button class="btn" type="button" id="prev" aria-label="Previous slide">← Prev</button>
+  <span class="nav-count" id="nav-count" aria-live="polite">1 / 8</span>
+  <button class="btn" type="button" id="next" aria-label="Next slide">Next →</button>
+</nav>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ================= Slides ================= */
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var total = slides.length;
+  var current = 0;
+  var progress = document.getElementById("progress");
+  var count = document.getElementById("nav-count");
+  var title = document.getElementById("nav-title");
+  var prevBtn = document.getElementById("prev");
+  var nextBtn = document.getElementById("next");
+
+  function show(index, focus) {
+    index = Math.max(0, Math.min(total - 1, index));
+    current = index;
+    slides.forEach(function (slide, i) {
+      var active = i === index;
+      slide.classList.toggle("is-active", active);
+      slide.classList.toggle("is-before", i < index);
+      slide.setAttribute("aria-hidden", active ? "false" : "true");
+      if (active) { slide.removeAttribute("inert"); slide.scrollTop = 0; } else { slide.setAttribute("inert", ""); }
+    });
+    progress.style.width = ((index + 1) / total) * 100 + "%";
+    count.textContent = (index + 1) + " / " + total;
+    title.textContent = slides[index].getAttribute("data-title");
+    prevBtn.disabled = index === 0;
+    nextBtn.disabled = index === total - 1;
+    if (history.replaceState) history.replaceState(null, "", "#" + (index + 1));
+    if (focus) slides[index].focus({ preventScroll: true });
+  }
+
+  slides.forEach(function (s) { s.setAttribute("tabindex", "-1"); });
+  prevBtn.addEventListener("click", function () { show(current - 1); });
+  nextBtn.addEventListener("click", function () { show(current + 1); });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    var tag = (e.target.tagName || "").toLowerCase();
+    // Leave keys alone while a form control (slider, radio) has focus.
+    if (tag === "input" || tag === "select" || tag === "textarea") return;
+    if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); show(current + 1); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); show(current - 1); }
+    else if (e.key === " " && tag !== "button" && tag !== "a") { e.preventDefault(); show(current + (e.shiftKey ? -1 : 1)); }
+    else if (e.key === "Home") { e.preventDefault(); show(0); }
+    else if (e.key === "End") { e.preventDefault(); show(total - 1); }
+  });
+
+  var touchX = null, touchY = null;
+  document.addEventListener("touchstart", function (e) { touchX = e.touches[0].clientX; touchY = e.touches[0].clientY; }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX, dy = e.changedTouches[0].clientY - touchY;
+    touchX = null;
+    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5 && !e.target.closest("input")) show(current + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+
+  var fromHash = parseInt((location.hash || "").replace("#", ""), 10);
+  show(fromHash >= 1 && fromHash <= total ? fromHash - 1 : 0);
+
+  /* ================= Code highlighting (tiny, no library) ================= */
+  var TOKEN = /(\/\/.*)|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")|(=>|&&)|(<\/?[A-Za-z][\w.]*|<\/?>|\/>)|\b(import|from|const|function|return|export|default)\b|([a-zA-Z_$][\w$]*)(?=\s*\()/g;
+  var CLS = [null, "t-com", "t-str", "t-op", "t-tag", "t-kw", "t-fn"];
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  Array.prototype.forEach.call(document.querySelectorAll("pre.code code"), function (el) {
+    el.innerHTML = el.textContent.split("\n").map(function (line) {
+      var out = "", last = 0, m;
+      TOKEN.lastIndex = 0;
+      while ((m = TOKEN.exec(line))) {
+        out += esc(line.slice(last, m.index));
+        var cls = "t-fn";
+        for (var g = 1; g < CLS.length; g++) { if (m[g] !== undefined) { cls = CLS[g]; break; } }
+        out += '<span class="' + cls + '">' + esc(m[0]) + "</span>";
+        last = TOKEN.lastIndex;
+      }
+      return out + esc(line.slice(last));
+    }).join("\n");
+  });
+
+  /* ================= Demo (slide 5): educational simulation ================= */
+  var THROTTLE = 300; // React 19 reveals suspended content at most every 300 ms after a fallback
+  var range = document.getElementById("duration");
+  var out = document.getElementById("duration-out");
+  var stage = document.getElementById("stage");
+  var log = document.getElementById("log");
+  var loadBtn = document.getElementById("load-btn");
+  var resetBtn = document.getElementById("reset-btn");
+  var track = document.getElementById("demo-track");
+  var barFallback = document.getElementById("bar-fallback");
+  var barShown = document.getElementById("bar-shown");
+  var barCode = document.getElementById("bar-code");
+  var axisMid = document.getElementById("axis-mid");
+  var axisMax = document.getElementById("axis-max");
+  var presets = Array.prototype.slice.call(document.querySelectorAll("[data-preset]"));
+  var timers = [];
+  var raf = 0;
+
+  function syncPresets() {
+    out.textContent = range.value + " ms";
+    presets.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-preset") === range.value ? "true" : "false"); });
+  }
+  presets.forEach(function (b) {
+    b.addEventListener("click", function () { range.value = b.getAttribute("data-preset"); syncPresets(); });
+  });
+  range.addEventListener("input", syncPresets);
+  syncPresets();
+
+  function addLog(ms, text, color) {
+    var empty = log.querySelector(".empty");
+    if (empty) empty.remove();
+    var li = document.createElement("li");
+    li.className = color || "";
+    li.innerHTML = "<b>" + ms + " ms</b><span>" + text + "</span>";
+    log.appendChild(li);
+  }
+
+  function setSeg(el, from, to) { el.style.setProperty("--from", from); el.style.setProperty("--to", to); }
+
+  function reset() {
+    timers.forEach(clearTimeout);
+    timers = [];
+    cancelAnimationFrame(raf);
+    stage.textContent = "Click “Load component”";
+    log.innerHTML = '<li class="empty">Status log inga varum.</li>';
+    setSeg(barFallback, 0, 0);
+    setSeg(barShown, 0, 0);
+    barCode.style.setProperty("--at", -50);
+    loadBtn.disabled = false;
+  }
+
+  function run() {
+    reset();
+    loadBtn.disabled = true;
+    var load = Number(range.value);
+    var mode = document.querySelector('input[name="mode"]:checked').value;
+    var reveal = mode === "suspense" ? Math.max(load, THROTTLE) : load;
+    var scale = Math.max(600, Math.ceil((reveal + 200) / 100) * 100);
+    track.style.setProperty("--max", scale);
+    axisMid.textContent = scale / 2 + " ms";
+    axisMax.textContent = scale + " ms";
+
+    addLog(0, "Render start: &lt;Profile /&gt; render aagudhu", "blue");
+    addLog(0, mode === "suspense" ? "Module pending → Suspense fallback kaattudhu" : "Code innum varala → placeholder-ah naame kaattrom (no suspend)", "amber");
+    stage.innerHTML = '<div class="skeleton-card">Loading profile...</div>';
+
+    var start = performance.now();
+    (function tick() {
+      var t = Math.min(performance.now() - start, reveal);
+      setSeg(barFallback, 0, t);
+      if (t < reveal) raf = requestAnimationFrame(tick);
+    })();
+
+    timers.push(setTimeout(function () {
+      barCode.style.setProperty("--at", load);
+      addLog(load, "Module resolved: code ready", "blue");
+    }, load));
+
+    timers.push(setTimeout(function () {
+      setSeg(barFallback, 0, reveal);
+      setSeg(barShown, reveal, scale);
+      var held = reveal - load;
+      stage.innerHTML = '<div class="profile"><span class="avatar">👤</span><span><b>Profile loaded</b><span class="dim">Real component render aayiduchu</span></span></div>';
+      addLog(reveal, held > 0
+        ? "Profile revealed. Code ready-aagi " + held + " ms React hold pannuchu (300 ms throttle)"
+        : "Profile revealed. Extra wait illa", "green");
+      loadBtn.disabled = false;
+    }, reveal));
+  }
+
+  loadBtn.addEventListener("click", run);
+  resetBtn.addEventListener("click", reset);
+})();
+</script>
 </body>
 </html>

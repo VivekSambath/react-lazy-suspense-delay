@@ -1,56 +1,44 @@
-# React.lazy, Suspense & the Hidden 300 ms Delay: Slides
+# React.lazy() + Suspense: the hidden 300 ms delay
 
-A 13-slide, picture-book style deck in plain HTML and CSS (dark gray theme) that walks through
-[Matthew Wong's article](https://tabwidgets.com/blog/react-lazy-suspense-delay) on why
-`React.lazy` + `Suspense` added a ~300 ms delay to a new-tab dashboard, and how the
-team fixed it. It covers the profiling, React's reveal throttle, both fixes, the results
-and the lessons, using a simple restaurant analogy, diagrams, code samples and a live React 19 demo.
+Tanglish slides for React developers, based on
+[“React.lazy, Suspense and the Hidden 300 ms Delay”](https://tabwidgets.com/blog/react-lazy-suspense-delay)
+by Matthew Wong (Tab Widgets, 29 October 2026).
 
-## View
+**Live:** https://viveksambath.github.io/react-lazy-suspense-delay/
 
-Open `index.html` in a browser, or serve the folder with any static server
-(for example `npx serve .`).
+## What's here
 
-| Key | Action |
+| Path | What it is |
 | --- | --- |
-| `→` / `Space` / `PageDown` | Next slide |
-| `←` / `Shift+Space` / `PageUp` | Previous slide |
-| `Home` / `End` | First / last slide |
-| `F` | Toggle fullscreen |
+| `index.html` | The presentation: 8 slides in one self-contained file (HTML, CSS, vanilla JS, no libraries) |
+| `demo/` | Built React 19 demo app (served at `/demo/`) |
+| `demo-app/` | Source of the demo app (Vite + React 19.1 + TypeScript) |
+| `assets/` | Favicon and social preview image |
 
-Swipe left or right on touch screens.
+## Slides
 
-## Structure
+1. Introduction · 2. Normal import vs lazy import · 3. What is Suspense? ·
+4. Understand the delay · 5. Interactive demo (simulation) · 6. Suspense + `useTransition` ·
+7. Common mistakes · 8. Recap with an interview answer
 
+Keys: `←` `→` / `Space` to move, `Home` / `End` for first and last. On touch screens, swipe.
+Every slide has its own link (`#1` … `#8`).
+
+## Demo app
+
+Four approaches side by side: **Before** (`React.lazy` + `Suspense`), **Fix #1** (preload, wait up to
+100 ms), **Fix #2** (gate instead of suspend), **Alternative** (own component cache). The timeline
+shows when each widget's code was ready and when it actually appeared.
+
+```sh
+cd demo-app
+npm install
+npm run dev      # local development
+npm run build    # rebuilds ../demo for GitHub Pages
 ```
-index.html          Slide 1 (cover)
-slides/             Slides 2–13, one page each
-assets/style.css    Theme, layout, diagrams, transitions
-assets/deck.js      Navigation, progress bar, code highlighting, timeline replay
-assets/demo.js      Live demo on slide 6 (loads React 19 from esm.sh; needs internet)
-assets/og-image.png Social preview image (1200×630)
-samples/            The code samples as standalone .ts/.tsx files
-```
 
-To add or reorder slides, update the `SLIDES` list in `assets/deck.js` and the
-`data-slide` number on each page's `<body>`.
+Deep links: `demo/?mode=suspend`, `?mode=preload`, `?mode=gate`, `?mode=cache`.
 
 ## Publish on GitHub Pages
 
-Live at **https://viveksambath.github.io/react-lazy-suspense-delay/**
-
-1. Push this folder to the public repository `react-lazy-suspense-delay`.
-2. In the repository, go to **Settings → Pages**, choose **Deploy from a branch**,
-   then select `main` and `/ (root)`.
-
-The site URL is set in the canonical and Open Graph tags, `sitemap.xml` and `robots.txt`.
-If you fork or rename the repository, find and replace
-`viveksambath.github.io/react-lazy-suspense-delay` in those files.
-
-## Credits
-
-Content is based on
-[“React.lazy, Suspense and the Hidden 300 ms Delay”](https://tabwidgets.com/blog/react-lazy-suspense-delay)
-by Matthew Wong (Tab Widgets, 29 October 2026). The code samples are reconstructed from
-the article's descriptions and aren't verbatim copies. Snippets marked *illustrative*
-were added to explain a point.
+In the repository, go to **Settings → Pages**, choose **Deploy from a branch**, and select `main` and `/ (root)`.
