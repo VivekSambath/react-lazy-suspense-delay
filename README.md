@@ -10,19 +10,25 @@ by Matthew Wong (Tab Widgets, 29 October 2026).
 
 | Path | What it is |
 | --- | --- |
-| `index.html` | The presentation: 8 slides in one self-contained file (HTML, CSS, vanilla JS, no libraries) |
+| `index.html` | The presentation: 13 slides with animated diagrams, in one self-contained file (HTML, CSS, vanilla JS, no libraries) |
+| `react-lazy-sample/` | Standalone sample project with each pattern and the article's fixes (run it locally for live demos) |
 | `demo/` | Built React 19 demo app (served at `/demo/`) |
 | `demo-app/` | Source of the demo app (Vite + React 19.1 + TypeScript) |
 | `assets/` | Favicon and social preview image |
 
 ## Slides
 
-1. Introduction · 2. Normal import vs lazy import · 3. What is Suspense? ·
-4. Understand the delay · 5. Interactive demo (simulation) · 6. Suspense + `useTransition` ·
-7. Common mistakes · 8. Recap with an interview answer
+The deck follows the article step by step, using Tab Widgets (a new-tab extension for Chrome and Edge) as the running example.
+
+1. Introduction · 2. The app: Tab Widgets · 3. `lazy()` splits the code · 4. Suspense shows a fallback ·
+5. How a new tab loads · 6. First guess: the bundle · 7. The idle gap · 8. React's 300 ms throttle ·
+9. Fix #1: preload before render · 10. Fix #2: don't suspend · 11. Before vs after (animated) ·
+12. Results · 13. Takeaways and an interview answer
+
+Slides 2, 7, 8 and 11 have slow-motion timeline animations with a **Replay** button.
 
 Keys: `←` `→` / `Space` to move, `Home` / `End` for first and last. On touch screens, swipe.
-Every slide has its own link (`#1` … `#8`).
+Every slide has its own link (`#1` … `#13`).
 
 ## Demo app
 

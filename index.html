@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>React.lazy() + Suspense: Fallback &amp; the Hidden 300 ms Reveal Delay (Slides)</title>
-<meta name="description" content="Slides for React developers: React.lazy(), Suspense, fallback UI, useTransition and why React holds back suspended content for up to 300 ms, with a built-in interactive demo.">
-<meta name="keywords" content="React.lazy, Suspense, fallback, useTransition, code splitting, lazy loading, React 19, FALLBACK_THROTTLE_MS, React tutorial">
+<title>React.lazy() + Suspense: The Hidden 300 ms Delay (Slides)</title>
+<meta name="description" content="Step-by-step slides: how a new-tab extension (Tab Widgets) found that React.lazy + Suspense held its widgets back for ~300 ms, and the two fixes, with animated diagrams.">
+<meta name="keywords" content="React.lazy, Suspense, fallback, FALLBACK_THROTTLE_MS, code splitting, lazy loading, React 19, browser extension, new tab, performance">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#1f1f1f">
 <link rel="canonical" href="https://viveksambath.github.io/react-lazy-suspense-delay/">
@@ -13,27 +13,27 @@
 
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="React.lazy + Suspense (slides)">
-<meta property="og:title" content="React.lazy() + Suspense: Fallback &amp; the Hidden 300 ms Reveal Delay">
-<meta property="og:description" content="Slides: lazy loading, Suspense fallback, useTransition and React's 300 ms reveal throttle, with an interactive demo.">
+<meta property="og:title" content="React.lazy() + Suspense: The Hidden 300 ms Delay">
+<meta property="og:description" content="Step-by-step slides: why React held a new-tab extension's widgets back for ~300 ms, and how they fixed it.">
 <meta property="og:url" content="https://viveksambath.github.io/react-lazy-suspense-delay/">
 <meta property="og:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="React.lazy() + Suspense: Fallback &amp; the Hidden 300 ms Reveal Delay">
-<meta name="twitter:description" content="Slides: lazy loading, Suspense fallback, useTransition and React's 300 ms reveal throttle.">
+<meta name="twitter:title" content="React.lazy() + Suspense: The Hidden 300 ms Delay">
+<meta name="twitter:description" content="Why React held a new-tab extension's widgets back for ~300 ms, and how they fixed it.">
 <meta name="twitter:image" content="https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png">
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Article",
-  "headline": "React.lazy() + Suspense: Fallback & the Hidden 300 ms Reveal Delay",
-  "description": "Slides explaining React.lazy(), Suspense fallback UI, useTransition and React's 300 ms reveal throttle, with an interactive demo.",
+  "headline": "React.lazy() + Suspense: The Hidden 300 ms Delay",
+  "description": "Step-by-step slides: how a new-tab extension found that React.lazy + Suspense held its widgets back for ~300 ms, and the two fixes, with animated diagrams.",
   "inLanguage": "en",
   "datePublished": "2026-11-11",
-  "dateModified": "2026-11-11",
+  "dateModified": "2026-11-12",
   "author": { "@type": "Person", "name": "VivekSambath", "url": "https://github.com/VivekSambath" },
   "image": "https://viveksambath.github.io/react-lazy-suspense-delay/assets/og-image.png",
   "mainEntityOfPage": "https://viveksambath.github.io/react-lazy-suspense-delay/",
@@ -68,8 +68,9 @@
     --amber-soft: rgba(204, 167, 0, 0.13);
     --green-soft: rgba(137, 209, 133, 0.15);
     --red-soft: rgba(244, 135, 113, 0.13);
-    --accent: #0078d4;        /* VS Code button / focus blue */
-    --accent-hover: #026ec1;
+    --accent: #0078d4;
+    --before: #d95926;      /* chart series: validated pair on #252526 */
+    --after: #3987e5;
     --radius: 8px;
     --mono: Consolas, "Cascadia Code", "Courier New", ui-monospace, Menlo, monospace;
     --sans: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -84,47 +85,48 @@
   :focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-  /* ============ Deck & slides ============ */
+  /* ============ Deck & slide transitions ============ */
   .deck { position: fixed; inset: 4px 0 var(--nav-h) 0; }
   .slide {
-    position: absolute;
-    inset: 0;
-    overflow-y: auto;
-    padding: 2.4rem 2rem 2rem;
-    opacity: 0;
-    visibility: hidden;
-    transform: translate3d(28px, 0, 0);
-    transition: opacity 0.28s ease, transform 0.28s ease, visibility 0s linear 0.28s;
+    position: absolute; inset: 0; overflow-y: auto;
+    padding: 2.2rem 2rem 2rem;
+    opacity: 0; visibility: hidden;
+    transform: translate3d(40px, 0, 0) scale(0.985);
+    transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), visibility 0s linear 0.45s;
   }
-  .slide.is-before { transform: translate3d(-28px, 0, 0); }
+  .slide.is-before { transform: translate3d(-40px, 0, 0) scale(0.985); }
   .slide.is-active { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
-  .slide-inner { max-width: 1120px; min-height: 100%; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; gap: 1.5rem; }
-  @media (max-width: 640px) { .slide { padding: 1.6rem 16px 1.6rem; } }
+  .slide-inner { max-width: 1120px; min-height: 100%; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; gap: 1.4rem; }
+  @media (max-width: 640px) { .slide { padding: 1.6rem 16px; } }
+
+  /* Content rises in, one block after another, each time a slide opens. */
+  @keyframes rise { from { opacity: 0; transform: translateY(16px); } }
+  .slide.is-active .rv { animation: rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 90ms + 120ms); }
 
   .kicker { margin: 0 0 0.5rem; font: 700 0.75rem/1 var(--sans); letter-spacing: 0.16em; text-transform: uppercase; color: var(--blue); }
   h1, h2 { margin: 0; letter-spacing: -0.02em; line-height: 1.15; }
   h2 { font-size: 2.1rem; }
-  h3 { margin: 0 0 0.4rem; font-size: 1.05rem; }
-  .lead { margin: 0.6rem 0 0; font-size: 1.15rem; color: var(--muted); max-width: 62ch; }
+  h3 { margin: 0 0 0.35rem; font-size: 1.05rem; }
+  .lead { margin: 0.6rem 0 0; font-size: 1.12rem; color: var(--muted); max-width: 64ch; }
+  .lead strong { color: var(--text); }
   p { margin: 0; }
   .muted { color: var(--muted); }
   .dim { color: var(--dim); }
   .small { font-size: 0.85rem; }
 
   .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; }
-  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
   .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
-  @media (max-width: 900px) { .grid-4, .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 680px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: minmax(0, 1fr); } h2 { font-size: 1.6rem; } }
+  .split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 1.4rem; align-items: center; }
+  .split.wide { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); }
+  @media (max-width: 900px) { .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .split, .split.wide { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 680px) { .grid-2, .grid-4 { grid-template-columns: minmax(0, 1fr); } h2 { font-size: 1.6rem; } }
 
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; min-width: 0; }
   .card p { color: var(--muted); font-size: 0.95rem; }
-  .card.blue { border-color: rgba(77, 170, 252, 0.45); }
   .card.amber { border-color: rgba(204, 167, 0, 0.5); }
   .card.green { border-color: rgba(137, 209, 133, 0.5); }
-  .card.red { border-color: rgba(244, 135, 113, 0.5); }
 
-  ul.points { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.55rem; }
+  ul.points { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.65rem; }
   ul.points li { position: relative; padding-left: 1.3rem; color: var(--muted); }
   ul.points li::before { content: ""; position: absolute; left: 0.15rem; top: 0.6em; width: 7px; height: 7px; border-radius: 50%; background: var(--blue); }
   ul.points li strong { color: var(--text); }
@@ -137,507 +139,664 @@
   .tag { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font: 700 0.7rem var(--sans); letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid var(--border-strong); color: var(--dim); }
   .tag.amber { color: var(--amber); border-color: rgba(204, 167, 0, 0.5); }
   .tag.green { color: var(--green); border-color: rgba(137, 209, 133, 0.5); }
-  .tag.red { color: var(--red); border-color: rgba(244, 135, 113, 0.5); }
   .tag.blue { color: var(--blue); border-color: rgba(77, 170, 252, 0.5); }
 
   kbd { font: 600 0.8em var(--mono); padding: 0.08em 0.45em; border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 6px; background: var(--surface); color: var(--text); }
   code { font-family: var(--mono); font-size: 0.88em; padding: 0.06em 0.35em; border-radius: 5px; background: var(--surface-2); color: #d4d4d4; font-variant-ligatures: none; }
 
-  /* ============ Code blocks ============ */
-  /* Looks like a VS Code editor: #1e1e1e text area, file tab on a #181818 tab bar. */
-  pre.code {
-    margin: 0;
-    padding: 1rem 1.15rem;
-    overflow-x: auto;
-    border-radius: 6px;
-    background: #1e1e1e;
-    border: 1px solid #2b2b2b;
-    color: #d4d4d4;
-    font: 0.86rem/1.65 var(--mono);
-    font-variant-ligatures: none;
-    tab-size: 2;
-  }
+  /* ============ Code blocks (VS Code editor look) ============ */
+  pre.code { margin: 0; padding: 1rem 1.15rem; overflow-x: auto; border-radius: 6px; background: #1e1e1e; border: 1px solid #2b2b2b; color: #d4d4d4; font: 0.84rem/1.65 var(--mono); font-variant-ligatures: none; tab-size: 2; }
   pre.code code { padding: 0; background: none; font-size: inherit; color: inherit; }
-  pre.code.tight { padding: 0.8rem 1rem; font-size: 0.76rem; line-height: 1.5; }
   pre.code[data-label] { padding-top: 0; }
   pre.code[data-label]::before {
-    content: attr(data-label);
-    display: block;
-    width: max-content;
-    margin: 0 -1.15rem 0.8rem;
-    padding: 0.45rem 1rem 0.45rem 1.15rem;
-    border-top: 1px solid var(--accent);
-    background: #1e1e1e;
-    box-shadow: 0 -1px 0 #1e1e1e, 100vw 0 0 100vw #181818;
-    clip-path: inset(0 -100vw 0 0);
-    font: 400 0.78rem var(--sans);
-    color: #ffffff;
+    content: attr(data-label); display: block; width: max-content;
+    margin: 0 -1.15rem 0.8rem; padding: 0.45rem 1rem 0.45rem 1.15rem;
+    border-top: 1px solid var(--accent); background: #1e1e1e;
+    box-shadow: 0 -1px 0 #1e1e1e, 100vw 0 0 100vw #181818; clip-path: inset(0 -100vw 0 0);
+    font: 400 0.78rem var(--sans); color: #ffffff;
   }
-  pre.code.tight[data-label]::before { margin: 0 -1rem 0.7rem; padding-left: 1rem; }
-  /* Dark+ token colours */
-  .t-com { color: #6a9955; }
-  .t-str { color: #ce9178; }
-  .t-kw { color: #c586c0; }        /* import, export, return, default, from */
-  .t-storage { color: #569cd6; }   /* const, function, let */
-  .t-punc { color: #808080; }      /* < > </ /> */
-  .t-tag { color: #569cd6; }       /* html tags: p, button */
-  .t-type { color: #4ec9b0; }      /* components: Suspense, Profile */
-  .t-attr { color: #9cdcfe; }      /* fallback=, onClick= */
-  .t-fn { color: #dcdcaa; }
-  .t-op { color: #d4d4d4; }
+  .t-com { color: #6a9955; } .t-str { color: #ce9178; } .t-kw { color: #c586c0; } .t-storage { color: #569cd6; }
+  .t-punc { color: #808080; } .t-tag { color: #569cd6; } .t-type { color: #4ec9b0; } .t-attr { color: #9cdcfe; }
+  .t-fn { color: #dcdcaa; } .t-op { color: #d4d4d4; }
 
-  /* ============ Diagram parts ============ */
-  .flow { display: flex; align-items: stretch; flex-wrap: nowrap; }
-  .node { flex: 1 1 0; min-width: 0; padding: 0.85rem 0.7rem; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.95rem; background: var(--surface-2); border: 2px solid var(--border-strong); }
-  .node small { display: block; margin-top: 0.2rem; font-weight: 400; font-size: 0.78rem; color: var(--dim); }
+  /* ============ Flow diagrams (steps light up one after another) ============ */
+  .flow { display: flex; align-items: stretch; }
+  .node { flex: 1 1 0; min-width: 0; padding: 0.8rem 0.6rem; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.92rem; background: var(--surface-2); border: 2px solid var(--border-strong); }
+  .node small { display: block; margin-top: 0.2rem; font-weight: 400; font-size: 0.76rem; color: var(--dim); }
+  .node b { display: block; font: 700 0.72rem var(--mono); color: var(--blue); margin-bottom: 0.2rem; }
   .node.blue { border-color: var(--blue); background: var(--blue-soft); }
   .node.amber { border-color: var(--amber); background: var(--amber-soft); }
   .node.green { border-color: var(--green); background: var(--green-soft); }
-  .node.gray { border-color: var(--border-strong); }
   .node.decision { border-style: dashed; border-color: var(--amber); }
-  .arrow { flex: 0 0 2rem; display: grid; place-items: center; color: var(--dim); font-size: 1.2rem; }
-  @media (max-width: 760px) { .flow { flex-direction: column; } .arrow { flex-basis: 1.6rem; transform: rotate(90deg); } }
+  .arrow { flex: 0 0 1.8rem; display: grid; place-items: center; color: var(--dim); font-size: 1.1rem; }
+  .flow.sm .node { padding: 0.55rem 0.4rem; font-size: 0.8rem; }
+  .flow.sm .arrow { flex-basis: 1.3rem; font-size: 0.95rem; }
+  .flow-label { margin-bottom: 0.4rem; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  @keyframes glow {
+    0%, 20%, 100% { transform: none; box-shadow: none; }
+    4%, 16% { transform: translateY(-3px); box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.16), 0 10px 22px rgba(0, 0, 0, 0.45); }
+  }
+  .slide.is-active .flow.live .node { animation: glow 6s ease-in-out infinite; animation-delay: calc(var(--n, 0) * 1.2s + 0.9s); }
+  @media (max-width: 760px) { .flow { flex-direction: column; } .arrow { flex-basis: 1.5rem; transform: rotate(90deg); } }
 
-  /* bundle diagram (slide 2) */
-  .bundle { display: grid; gap: 0.5rem; }
+  /* ============ Bundle diagram ============ */
+  .bundle { display: grid; gap: 0.5rem; margin-top: 1rem; }
   .file { border-radius: 6px; border: 2px solid var(--border-strong); background: var(--bg-soft); padding: 0.6rem 0.75rem; }
   .file > b { display: block; margin-bottom: 0.45rem; font: 700 0.8rem var(--mono); color: var(--dim); }
-  .mod { display: inline-block; margin: 0 0.35rem 0.35rem 0; padding: 0.3rem 0.65rem; border-radius: 7px; font: 600 0.85rem var(--mono); background: var(--surface-2); }
-  .mod.dash { background: var(--amber-soft); color: var(--amber); box-shadow: inset 0 0 0 1px rgba(204, 167, 0, 0.5); }
-  .file.chunk { border-style: dashed; border-color: var(--amber); }
+  .mod { display: inline-block; margin: 0 0.35rem 0.35rem 0; padding: 0.28rem 0.6rem; border-radius: 7px; font: 600 0.82rem var(--mono); background: var(--surface-2); }
+  .mod.wd { background: var(--amber-soft); color: var(--amber); box-shadow: inset 0 0 0 1px rgba(204, 167, 0, 0.5); }
+  .chunks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+  .file.chunk { border-style: dashed; border-color: var(--amber); padding: 0.5rem; text-align: center; }
+  .file.chunk > b { margin-bottom: 0.35rem; font-size: 0.72rem; }
+  .bundle-link { font-size: 0.82rem; color: var(--amber); padding-left: 0.4rem; }
   .bundle-note { font-size: 0.85rem; color: var(--dim); }
-  .bundle-link { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--amber); padding-left: 0.4rem; }
 
-  /* timeline (slide 4) */
-  .lane { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 1rem; align-items: center; }
-  .lane-label { font-weight: 700; }
-  .lane-label small { display: block; font-weight: 400; color: var(--dim); font-size: 0.8rem; }
-  .track { --max: 440; position: relative; height: 2.8rem; border-radius: 6px; background: var(--bg-soft); border: 1px solid var(--border); }
-  .seg { position: absolute; top: 5px; bottom: 5px; left: calc(var(--from) / var(--max) * 100%); width: calc((var(--to) - var(--from)) / var(--max) * 100%); border-radius: 7px; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; font-size: 0.8rem; font-weight: 700; }
-  .seg.gray { background: #4d4d4d; color: #e6e6e6; }
-  .seg.green { background: var(--green-soft); color: var(--green); box-shadow: inset 0 0 0 2px rgba(137, 209, 133, 0.6); }
-  .seg.old { background: rgba(197, 134, 192, 0.16); color: var(--violet); box-shadow: inset 0 0 0 2px rgba(197, 134, 192, 0.5); }
-  .seg.hold { background: repeating-linear-gradient(135deg, rgba(204, 167, 0, 0.22) 0 8px, rgba(204, 167, 0, 0.08) 8px 16px); color: var(--amber); box-shadow: inset 0 0 0 2px rgba(204, 167, 0, 0.55); }
-  .mark { position: absolute; top: -6px; bottom: -6px; left: calc(var(--at) / var(--max) * 100%); width: 0; border-left: 2px dashed var(--blue); }
-  .step-dots { position: relative; height: 2.2rem; margin-left: 12rem; }
-  .step-dot { position: absolute; top: 0.2rem; left: calc(var(--at) / var(--max) * 100%); transform: translateX(-50%); display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--border-strong); font: 700 0.75rem var(--mono); color: var(--blue); }
-  .legend-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.6rem; font-size: 0.82rem; color: var(--muted); }
-  .legend-steps b { color: var(--blue); font-family: var(--mono); margin-right: 0.25rem; }
-  @media (max-width: 760px) { .lane { grid-template-columns: 1fr; gap: 0.4rem; } .step-dots { margin-left: 0; } .legend-steps { grid-template-columns: 1fr 1fr; } }
+  /* ============ Suspense boundaries diagram ============ */
+  .bounds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; padding: 0.7rem; border-radius: 8px; background: var(--bg-soft); border: 1px solid var(--border); }
+  .bounds div { position: relative; padding: 1.35rem 0.4rem 0.6rem; border: 1.5px dashed rgba(204, 167, 0, 0.6); border-radius: 6px; text-align: center; font-size: 0.85rem; font-weight: 600; }
+  .bounds div::before { content: "Suspense"; position: absolute; top: 0.25rem; left: 0.45rem; font: 600 0.62rem var(--mono); color: var(--amber); }
 
-  /* mini screens (slides 6 & 7) */
-  .screens { display: grid; grid-template-columns: 9rem repeat(3, minmax(0, 1fr)); gap: 0.6rem; align-items: center; }
-  .screen { position: relative; aspect-ratio: 16 / 9; border-radius: 9px; border: 1px solid var(--border-strong); background: var(--bg-soft); display: grid; place-items: center; text-align: center; font-size: 0.82rem; padding: 0.4rem; }
-  .screen.fallback { color: var(--amber); border-color: rgba(204, 167, 0, 0.55); }
-  .screen.new { color: var(--green); border-color: rgba(137, 209, 133, 0.55); }
-  .screen .pending { position: absolute; top: 6px; right: 8px; font-size: 0.68rem; color: var(--blue); }
-  .screens .row-label { font-weight: 700; font-size: 0.9rem; }
-  .screens .row-label small { display: block; font-weight: 400; color: var(--dim); font-size: 0.75rem; }
-  @media (max-width: 680px) { .screens { grid-template-columns: repeat(3, minmax(0, 1fr)); } .screens .row-label { grid-column: 1 / -1; } }
-
-  .ui-mock { position: relative; height: 9rem; border-radius: 6px; background: var(--bg-soft); border: 1px solid var(--border); padding: 0.7rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; overflow: hidden; }
-  .ui-mock .blk { border-radius: 6px; background: var(--surface-2); }
-  .ui-mock .blk.skeleton { background: linear-gradient(90deg, var(--surface) 0%, #3c3c3c 50%, var(--surface) 100%) 0 0 / 200% 100%; animation: shimmer 1.3s linear infinite; }
-  .ui-mock .overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(12, 12, 12, 0.82); }
-  .spinner { width: 3.2rem; height: 3.2rem; border-radius: 50%; border: 5px solid var(--border-strong); border-top-color: var(--red); animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  /* ============ Browser + new-tab page mock ============ */
+  .browser { border-radius: 10px; border: 1px solid var(--border-strong); background: #2b2b2b; overflow: hidden; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35); min-width: 0; }
+  .b-top { display: flex; align-items: flex-end; gap: 0.35rem; padding: 0.45rem 0.6rem 0; background: #141414; }
+  .b-tab { display: flex; align-items: center; gap: 0.45rem; padding: 0.38rem 1rem 0.38rem 0.75rem; border-radius: 8px 8px 0 0; background: #2b2b2b; font-size: 0.74rem; color: var(--muted); }
+  .b-tab::before { content: ""; width: 0.6rem; height: 0.6rem; border-radius: 3px; background: var(--blue); }
+  .b-plus { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; margin-bottom: 0.2rem; border: 0; border-radius: 6px; background: transparent; color: var(--dim); font: 400 1rem var(--sans); }
+  button.b-plus { cursor: pointer; color: var(--text); background: rgba(77, 170, 252, 0.18); box-shadow: inset 0 0 0 1px rgba(77, 170, 252, 0.5); }
+  button.b-plus:hover { background: rgba(77, 170, 252, 0.3); }
+  .b-bar { padding: 0.35rem 0.6rem; }
+  .b-url { display: block; padding: 0.22rem 0.7rem; border-radius: 999px; background: #1b1b1b; font-size: 0.72rem; color: var(--dim); }
+  .b-page { padding: 0.7rem; background: radial-gradient(120% 90% at 0% 0%, #1f3346 0%, #1a1a1a 60%); }
+  .b-nav { display: flex; gap: 0.35rem; margin-bottom: 0.55rem; opacity: 0; transition: opacity 0.2s; }
+  .b-nav.on { opacity: 1; }
+  .b-nav span { padding: 0.12rem 0.55rem; border-radius: 999px; background: rgba(255, 255, 255, 0.08); font-size: 0.66rem; color: var(--muted); }
+  .w-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; }
+  .w { position: relative; height: 4.3rem; border-radius: 8px; overflow: hidden; background: rgba(255, 255, 255, 0.025); border: 1px solid rgba(255, 255, 255, 0.05); transition: border-color 0.3s; }
+  .w-skel { position: absolute; inset: 0; opacity: 0; transition: opacity 0.2s; background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.11) 50%, rgba(255, 255, 255, 0.04) 100%) 0 0 / 200% 100%; animation: shimmer 1.3s linear infinite; }
+  .b-page.on .w-skel { opacity: 1; }
+  .w.on .w-skel { opacity: 0; }
+  .w-body { position: absolute; inset: 0; padding: 0.45rem 0.6rem; display: flex; flex-direction: column; justify-content: center; opacity: 0; transform: scale(0.9); transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1.25); }
+  .w.on { border-color: rgba(137, 209, 133, 0.45); background: rgba(255, 255, 255, 0.06); }
+  .w.on .w-body { opacity: 1; transform: none; }
+  .w-body small { font-size: 0.6rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; }
+  .w-body b { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .w-body span { font-size: 0.65rem; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .browser.mini .w { height: 3.3rem; }
+  .browser.mini .w-body { padding: 0.35rem 0.5rem; }
+  .browser.mini .w-body b { font-size: 0.8rem; }
+  .browser.mini .w-body span { display: none; }
   @keyframes shimmer { to { background-position: -200% 0; } }
 
-  /* ============ Demo (slide 5) ============ */
-  .demo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 1.2rem; align-items: start; }
-  @media (max-width: 860px) { .demo { grid-template-columns: minmax(0, 1fr); } }
-  .controls { display: grid; gap: 1rem; }
-  .field-label { display: block; margin-bottom: 0.4rem; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
-  .presets { display: flex; flex-wrap: wrap; gap: 0.45rem; }
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
-    padding: 0.5rem 0.95rem; border-radius: 4px; border: 1px solid var(--border);
-    background: var(--surface-2); color: var(--text); font: 600 0.88rem var(--sans); cursor: pointer;
-  }
-  .btn:hover { background: #3c3c3c; }
-  .btn[aria-pressed="true"] { border-color: var(--accent); color: #ffffff; background: rgba(0, 120, 212, 0.35); }
-  .btn.primary { border-color: var(--accent); background: var(--accent); color: #ffffff; }
-  .btn.primary:hover { background: var(--accent-hover); }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .range-row { display: flex; align-items: center; gap: 0.8rem; }
-  input[type="range"] { flex: 1; accent-color: var(--blue); }
-  output { min-width: 4.5rem; text-align: right; font: 700 0.95rem var(--mono); }
-  .radio-row { display: grid; gap: 0.45rem; }
-  .radio-row label { display: flex; gap: 0.55rem; align-items: flex-start; padding: 0.55rem 0.7rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-soft); cursor: pointer; font-size: 0.92rem; }
-  .radio-row label:has(input:checked) { border-color: var(--blue); background: var(--blue-soft); }
-  .radio-row input { accent-color: var(--blue); margin-top: 0.25rem; }
-  .radio-row small { display: block; color: var(--dim); font-size: 0.8rem; }
-  .actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  /* ============ Timeline player ============ */
+  .player-bar { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .ms { min-width: 5.5rem; font: 700 1.15rem var(--mono); color: var(--text); }
+  .player-bar .hint { margin-right: auto; color: var(--dim); font-size: 0.8rem; }
+  .tl { display: grid; gap: 0.6rem; }
+  .tl-row { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 0.9rem; align-items: center; }
+  .tl-label { font-weight: 700; font-size: 0.88rem; }
+  .tl-label small { display: block; font-weight: 400; color: var(--dim); font-size: 0.74rem; }
+  .track { position: relative; height: 2.2rem; border-radius: 6px; background: var(--bg-soft); border: 1px solid var(--border); }
+  .track.has-tick { margin-top: 1.3rem; }
+  .seg { position: absolute; top: 4px; bottom: 4px; left: calc(var(--from) / var(--max) * 100%); width: calc((var(--to) - var(--from)) / var(--max) * 100%); border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; font-size: 0.74rem; font-weight: 700; }
+  .seg.gray { background: #444444; color: #e6e6e6; }
+  .seg.blue { background: var(--blue-soft); color: var(--blue); box-shadow: inset 0 0 0 1.5px rgba(77, 170, 252, 0.6); }
+  .seg.amber { background: var(--amber-soft); color: var(--amber); box-shadow: inset 0 0 0 1.5px rgba(204, 167, 0, 0.5); }
+  .seg.green { background: var(--green-soft); color: var(--green); box-shadow: inset 0 0 0 1.5px rgba(137, 209, 133, 0.6); }
+  .seg.hold { background: repeating-linear-gradient(135deg, rgba(204, 167, 0, 0.24) 0 7px, rgba(204, 167, 0, 0.07) 7px 14px); color: var(--amber); box-shadow: inset 0 0 0 1.5px rgba(204, 167, 0, 0.55); }
+  .seg.idle { background: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0 6px, transparent 6px 12px); color: var(--dim); box-shadow: inset 0 0 0 1px var(--border-strong); }
+  .seg.win { background: transparent; color: var(--blue); box-shadow: inset 0 0 0 2px var(--blue); }
+  .tick { position: absolute; top: -1.35rem; left: calc(var(--at) / var(--max) * 100%); transform: translateX(-50%); font: 600 0.68rem var(--mono); color: var(--blue); white-space: nowrap; }
+  .tick::after { content: ""; position: absolute; left: 50%; top: 1.05rem; height: 2.55rem; border-left: 2px dashed rgba(77, 170, 252, 0.7); }
+  .dot { position: absolute; top: 50%; left: calc(var(--at) / var(--max) * 100%); width: 0.7rem; height: 0.7rem; margin: -0.35rem 0 0 -0.35rem; border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 3px var(--bg-soft); }
+  /* the part of the track that hasn't "happened" yet is dimmed; the playhead sweeps right */
+  .track .future { position: absolute; top: -1px; bottom: -1px; right: -1px; left: min(100%, calc(var(--t, 99999) / var(--max) * 100%)); background: rgba(31, 31, 31, 0.84); border-radius: 0 6px 6px 0; pointer-events: none; }
+  .track .ph { position: absolute; top: -5px; bottom: -5px; left: min(100%, calc(var(--t, 0) / var(--max) * 100%)); border-left: 2px solid var(--text); opacity: 0; }
+  .player.playing .track .ph { opacity: 1; }
+  .tl-axis { position: relative; height: 1rem; margin: 0.3rem 0 0 8.4rem; }
+  .tl-axis span { position: absolute; left: calc(var(--at) / var(--max) * 100%); transform: translateX(-50%); font: 0.68rem var(--mono); color: var(--dim); }
+  .key { display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem; margin-top: 0.9rem; font-size: 0.8rem; color: var(--muted); }
+  .key i { display: inline-block; width: 1rem; height: 0.65rem; margin-right: 0.4rem; border-radius: 3px; vertical-align: middle; }
+  @keyframes growW { from { width: 0; } }
+  .slide.is-active .tl.grow .seg { animation: growW 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--d, 0) * 250ms + 400ms); }
+  @media (max-width: 760px) { .tl-row { grid-template-columns: minmax(0, 1fr); gap: 0.35rem; } .tl-axis { margin-left: 0; } .track.has-tick { margin-top: 1.5rem; } }
 
-  .stage { height: 8.5rem; border-radius: 8px; border: 1px dashed var(--border-strong); background: var(--bg-soft); display: grid; place-items: center; padding: 0.8rem; color: var(--dim); }
-  .stage .skeleton-card { width: 100%; height: 100%; border-radius: 6px; display: grid; place-items: center; color: var(--amber); font-weight: 600; background: linear-gradient(90deg, var(--surface) 0%, #3c3c3c 50%, var(--surface) 100%) 0 0 / 200% 100%; animation: shimmer 1.2s linear infinite; }
-  .stage .profile { width: 100%; height: 100%; display: flex; align-items: center; gap: 1rem; padding: 0 1rem; border-radius: 6px; background: var(--green-soft); box-shadow: inset 0 0 0 2px rgba(137, 209, 133, 0.55); animation: pop 0.2s ease-out; }
-  .profile .avatar { flex: none; width: 3.4rem; height: 3.4rem; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--green); font-weight: 800; }
-  .profile b { display: block; font-size: 1.1rem; }
-  @keyframes pop { from { opacity: 0.3; transform: scale(0.98); } }
-  .demo-track { --max: 600; position: relative; height: 1.9rem; margin-top: 0.9rem; border-radius: 8px; background: var(--bg-soft); border: 1px solid var(--border); overflow: hidden; }
-  .demo-track .seg { top: 4px; bottom: 4px; font-size: 0.72rem; }
-  .demo-axis { display: flex; justify-content: space-between; margin-top: 0.25rem; font: 0.7rem var(--mono); color: var(--dim); }
-  .log { margin: 0.9rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.35rem; font-size: 0.88rem; min-height: 7.5rem; }
-  .log li { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); gap: 0.6rem; padding: 0.35rem 0.6rem; border-radius: 8px; background: var(--bg-soft); border-left: 3px solid var(--border-strong); }
-  .log li b { font-family: var(--mono); color: var(--text); }
-  .log li.blue { border-left-color: var(--blue); }
-  .log li.amber { border-left-color: var(--amber); }
-  .log li.green { border-left-color: var(--green); }
-  .log li.empty { grid-template-columns: 1fr; color: var(--dim); border-left-color: transparent; }
-  .sim-note { font-size: 0.82rem; color: var(--dim); }
+  /* ============ "Same wait" table (bundle slide) ============ */
+  .same { display: grid; gap: 0.2rem; }
+  .same-row { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 1rem; align-items: center; padding: 0.7rem 0.4rem; border-bottom: 1px solid var(--border); }
+  .same-row:last-child { border-bottom: 0; }
+  .same-row.head { padding-top: 0; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+  .same-row small { display: block; color: var(--dim); font-size: 0.8rem; }
+  .size-wrap { display: flex; align-items: center; gap: 0.6rem; }
+  .size { position: relative; flex: 1; height: 0.9rem; border-radius: 4px; background: var(--surface-2); }
+  .size i { position: absolute; inset: 0 auto 0 0; width: var(--w); border-radius: 4px; background: var(--blue); }
+  @keyframes shrink { from { width: 100%; } }
+  .slide.is-active .size i { animation: shrink 1.2s cubic-bezier(0.4, 0, 0.2, 1) both; animation-delay: calc(var(--d, 0) * 400ms + 700ms); }
+  .size-wrap em { flex: none; min-width: 4.2rem; font: normal 600 0.75rem var(--mono); color: var(--muted); }
 
-  /* ============ Recap ============ */
-  .defs { display: grid; gap: 0.6rem; }
-  .defs div { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 1rem; align-items: baseline; padding: 0.7rem 1rem; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); }
-  .defs code { font-size: 0.95rem; color: var(--blue); }
-  .quote { margin: 0; padding: 1.1rem 1.3rem; border-radius: 8px; background: linear-gradient(135deg, rgba(77, 170, 252, 0.1), transparent 70%), var(--surface); border: 1px solid rgba(77, 170, 252, 0.4); font-size: 1.15rem; font-weight: 600; }
-  @media (max-width: 680px) { .defs div { grid-template-columns: 1fr; gap: 0.2rem; } }
+  /* ============ Results chart ============ */
+  .chart { margin: 0; }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: var(--muted); }
+  .sw { display: inline-block; width: 0.8rem; height: 0.8rem; margin-right: 0.4rem; border-radius: 3px; vertical-align: -1px; }
+  .sw.before, .bar.before { background: var(--before); }
+  .sw.after, .bar.after { background: var(--after); }
+  .bar-row, .chart-axis { display: grid; grid-template-columns: 10.5rem minmax(0, 1fr) 7.5rem; gap: 1rem; align-items: center; }
+  .bar-row { padding: 0.5rem 0; }
+  .bar-label { font-size: 0.9rem; }
+  .bar-track { display: grid; gap: 2px; background: linear-gradient(to right, var(--border) 1px, transparent 1px) 0 0 / 25% 100%; }
+  .bar { position: relative; height: 0.95rem; width: calc(var(--v) / 800 * 100%); border-radius: 0 4px 4px 0; cursor: default; }
+  .slide.is-active .bar { animation: growW 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--d, 0) * 130ms + 500ms); }
+  .bar b { position: absolute; left: calc(100% + 0.4rem); top: 50%; transform: translateY(-50%); font: 600 0.74rem var(--mono); color: var(--muted); }
+  .delta { font: 700 0.88rem var(--mono); color: var(--text); }
+  .delta small { display: block; font: 400 0.72rem var(--sans); color: var(--dim); }
+  .chart-axis div { display: flex; justify-content: space-between; font: 0.68rem var(--mono); color: var(--dim); }
+  .tip { position: fixed; z-index: 10; padding: 0.35rem 0.6rem; border-radius: 6px; background: #2d2d2d; border: 1px solid var(--border-strong); font-size: 0.8rem; color: var(--text); pointer-events: none; opacity: 0; transition: opacity 0.12s; }
+  .tip.show { opacity: 1; }
+  @media (max-width: 680px) { .bar-row, .chart-axis { grid-template-columns: minmax(0, 1fr); gap: 0.3rem; } .chart-axis > span { display: none; } }
 
-  /* ============ Cover ============ */
+  /* ============ Cover & takeaways ============ */
   .cover h1 { font-size: 3.6rem; }
   .cover h1 span { color: var(--blue); }
-  .cover .subtitle { margin-top: 0.8rem; font-size: 1.35rem; color: var(--amber); font-weight: 600; }
-  .concept .icon { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; margin-bottom: 0.7rem; border-radius: 6px; background: var(--surface-2); font-size: 1.2rem; }
-  .concept.blue .icon { color: var(--blue); } .concept.amber .icon { color: var(--amber); } .concept.green .icon { color: var(--green); } .concept.red .icon { color: var(--red); }
-  @media (max-width: 680px) { .cover h1 { font-size: 2.4rem; } }
+  .cover .subtitle { margin-top: 0.7rem; font-size: 1.45rem; color: var(--amber); font-weight: 600; }
+  .road { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.8rem; }
+  .road a { display: block; padding: 0.9rem 1rem; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text); text-decoration: none; transition: border-color 0.2s, transform 0.2s; }
+  .road a:hover { border-color: var(--blue); transform: translateY(-2px); }
+  .road b { display: block; margin-bottom: 0.25rem; font: 700 0.72rem var(--mono); color: var(--blue); }
+  .road span { display: block; margin-top: 0.15rem; color: var(--dim); font-size: 0.82rem; }
+  .stat { font: 700 2.2rem/1.1 var(--mono); }
+  .stat .from { color: var(--before); } .stat .to { color: var(--green); }
+  .num { display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem; margin-bottom: 0.6rem; border-radius: 6px; background: var(--blue-soft); color: var(--blue); font: 700 0.85rem var(--mono); }
+  .quote { margin: 0; padding: 1rem 1.25rem; border-radius: 8px; background: linear-gradient(135deg, rgba(77, 170, 252, 0.1), transparent 70%), var(--surface); border: 1px solid rgba(77, 170, 252, 0.4); }
+  .quote p { color: var(--muted); }
+  @media (max-width: 900px) { .road { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 680px) { .cover h1 { font-size: 2.4rem; } .road { grid-template-columns: minmax(0, 1fr); } }
 
-  /* ============ Navigation ============ */
+  /* ============ Buttons & navigation ============ */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.45rem 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font: 600 0.85rem var(--sans); cursor: pointer; }
+  .btn:hover { background: #3c3c3c; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn[aria-pressed="true"] { border-color: var(--accent); background: rgba(0, 120, 212, 0.35); }
   .progress { position: fixed; top: 0; left: 0; right: 0; height: 4px; background: rgba(255, 255, 255, 0.06); z-index: 5; }
   .progress span { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.3s ease; }
-  /* Footer styled like VS Code's status bar area */
   .nav { position: fixed; left: 0; right: 0; bottom: 0; height: var(--nav-h); display: flex; align-items: center; gap: 0.7rem; padding: 0 1.2rem; border-top: 1px solid #2b2b2b; background: #181818; z-index: 5; }
   .nav-title { margin-right: auto; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--dim); font-size: 0.85rem; }
   .nav-count { font: 600 0.85rem var(--mono); color: var(--muted); white-space: nowrap; }
-  .nav .btn { padding: 0.45rem 0.8rem; }
   @media (max-width: 520px) { .nav-title { display: none; } .nav-count { margin-right: auto; } }
 
   @media (prefers-reduced-motion: reduce) {
     .slide, .progress span { transition: none !important; }
     .slide { transform: none !important; }
-    .skeleton, .skeleton-card, .ui-mock .blk.skeleton, .spinner, .stage .profile { animation: none !important; }
+    *, *::before, *::after { animation: none !important; }
+    .w-body { transition: none !important; }
   }
 </style>
 </head>
 <body>
 <a class="sr-only" href="#deck">Skip to slides</a>
 <div class="progress" aria-hidden="true"><span id="progress"></span></div>
+<div class="tip" id="tip" role="tooltip"></div>
 
 <main class="deck" id="deck" aria-roledescription="slide deck" aria-label="React.lazy and Suspense slides">
 
-  <!-- ======================= 1. Introduction ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="1 of 8: Introduction" data-title="Introduction">
+  <!-- ======================= 1. Cover ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="1 of 13: Introduction" data-title="Introduction">
     <div class="slide-inner cover">
       <div>
-        <p class="kicker">React · Performance</p>
+        <p class="kicker">React · Performance · A real story</p>
         <h1><span>React.lazy()</span> + Suspense</h1>
-        <p class="subtitle">How does the fallback work when a component is lazy-loaded?</p>
+        <p class="subtitle">The hidden 300 ms delay</p>
+        <p class="lead">How a new-tab extension found that React was holding its widgets back, and how they fixed it.</p>
       </div>
-      <div class="grid-4">
-        <div class="card concept blue"><div class="icon">✂</div><h3>Code splitting</h3><p>Split one big bundle into smaller chunks.</p></div>
-        <div class="card concept amber"><div class="icon">⤓</div><h3>Lazy loading</h3><p>A component's code loads only when it's needed.</p></div>
-        <div class="card concept green"><div class="icon">⏳</div><h3>Suspense fallback</h3><p>Shows a temporary UI while the code loads.</p></div>
-        <div class="card concept red"><div class="icon">⏱</div><h3>Delayed reveal</h3><p>Even when the code is ready, React may hold back the reveal. That's the article's main point.</p></div>
-      </div>
+      <nav class="road stagger" aria-label="Chapters">
+        <a href="#2"><b>01</b>The app<span>What Tab Widgets is</span></a>
+        <a href="#3"><b>02</b>The basics<span>lazy() and Suspense</span></a>
+        <a href="#5"><b>03</b>The problem<span>Ready at 100 ms, shown at 380 ms</span></a>
+        <a href="#9"><b>04</b>The fix<span>Two fixes and the results</span></a>
+      </nav>
       <p class="dim small">Based on <a href="https://tabwidgets.com/blog/react-lazy-suspense-delay" rel="noopener">“React.lazy, Suspense and the Hidden 300 ms Delay”</a> by Matthew Wong (Tab Widgets, 29 Oct 2026). Use <kbd>←</kbd> <kbd>→</kbd> or <kbd>Space</kbd> to move.</p>
     </div>
   </section>
 
-  <!-- ======================= 2. Normal vs Lazy ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="2 of 8: Normal import vs lazy import" data-title="Normal import vs lazy import">
+  <!-- ======================= 2. The app ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="2 of 13: What is Tab Widgets?" data-title="What is Tab Widgets?">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Step 1</p>
-        <h2>Normal import vs lazy import</h2>
+        <p class="kicker">Background</p>
+        <h2>The app: Tab Widgets</h2>
+      </header>
+      <div class="split">
+        <div class="player" data-max="560" data-speed="1.6" data-autoplay>
+          <div class="browser" data-newtab data-shell="90" data-nav="90" data-times="230,280,330,380,430,480" aria-label="Illustration: a new tab page filling in with widgets"></div>
+          <p class="dim small" style="margin-top:.7rem">Press <b>+</b> to open a new tab · tabs opened: <b id="tab-count">1</b></p>
+        </div>
+        <ul class="points stagger">
+          <li><strong>A new-tab extension</strong> for Chrome and Edge. Every new tab shows your widgets: clock, notes, weather and 80+ more.</li>
+          <li><strong>Built with React 19</strong> (bundled with Rspack).</li>
+          <li><strong>Starts from scratch on every tab.</strong> There's no warm page to come back to.</li>
+          <li><strong>Files load from local disk</strong>, not the network.</li>
+          <li>The author opens <strong>~107 new tabs a day</strong>, so every delay is felt over and over.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 3. lazy() ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="3 of 13: lazy import" data-title="Step 1 · lazy() splits the code">
+    <div class="slide-inner">
+      <header>
+        <p class="kicker">Step 1 · Basics</p>
+        <h2><code style="font-size:.85em">lazy()</code> splits the code</h2>
       </header>
       <div class="grid-2">
         <div class="card">
           <span class="tag">Normal import</span>
-          <pre class="code" style="margin-top:.8rem"><code>import Dashboard from './Dashboard';</code></pre>
-          <div class="bundle" style="margin-top:1rem" aria-label="Diagram: one main bundle containing App and Dashboard">
-            <div class="file"><b>main.js</b><span class="mod">App</span><span class="mod dash">Dashboard</span></div>
-            <p class="bundle-note">Everything loads together at startup.</p>
+          <pre class="code" style="margin-top:.8rem"><code>import Clock from './widgets/Clock';</code></pre>
+          <div class="bundle" aria-label="Diagram: one main bundle with App and every widget">
+            <div class="file"><b>main.js</b><span class="mod">App</span><span class="mod wd">Clock</span><span class="mod wd">Weather</span><span class="mod wd">Notes</span><span class="mod wd">…</span></div>
+            <p class="bundle-note">Every widget loads at startup, used or not.</p>
           </div>
         </div>
         <div class="card amber">
           <span class="tag amber">Lazy import</span>
-          <pre class="code" style="margin-top:.8rem"><code>import { lazy } from 'react';
-
-const Dashboard = lazy(() =&gt; import('./Dashboard'));</code></pre>
-          <div class="bundle" style="margin-top:1rem" aria-label="Diagram: main bundle with App, separate Dashboard chunk loaded on first render">
+          <pre class="code" style="margin-top:.8rem"><code>const Clock = lazy(() =&gt; import('./widgets/Clock'));</code></pre>
+          <div class="bundle" aria-label="Diagram: main bundle with App, and one separate chunk per widget">
             <div class="file"><b>main.js</b><span class="mod">App</span></div>
-            <div class="bundle-link">↳ loaded only on first render</div>
-            <div class="file chunk"><b>Dashboard.[hash].js</b><span class="mod dash">Dashboard</span></div>
+            <div class="bundle-link">↳ loaded on first render</div>
+            <div class="chunks stagger">
+              <div class="file chunk"><b>Clock.js</b><span class="mod wd">Clock</span></div>
+              <div class="file chunk"><b>Weather.js</b><span class="mod wd">Weather</span></div>
+              <div class="file chunk"><b>Notes.js</b><span class="mod wd">Notes</span></div>
+            </div>
           </div>
         </div>
       </div>
-      <ul class="points">
-        <li><strong>Normal import</strong>: the regular module path. Dashboard's code ships in the main bundle and loads at startup.</li>
-        <li><strong><code>lazy()</code></strong>: React loads the module only <strong>the first time it renders</strong> the component.</li>
-        <li>With bundler support (Vite, webpack, Rspack) it becomes a <strong>separate chunk</strong>, so the first download is smaller.</li>
-      </ul>
+      <div class="callout">In Tab Widgets, <strong>every widget is its own chunk</strong>, so a new tab only loads code for the widgets on your page.</div>
     </div>
   </section>
 
-  <!-- ======================= 3. What is Suspense ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="3 of 8: What is Suspense?" data-title="What is Suspense?">
+  <!-- ======================= 4. Suspense ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="4 of 13: Suspense" data-title="Step 2 · Suspense shows a fallback">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Step 2</p>
-        <h2>What is Suspense?</h2>
+        <p class="kicker">Step 2 · Basics</p>
+        <h2>Suspense shows a fallback</h2>
       </header>
-      <div class="grid-2" style="align-items:start">
-        <pre class="code" data-label="App.jsx"><code>import { Suspense, lazy } from 'react';
+      <div class="grid-2" style="align-items:center">
+        <pre class="code" data-label="ClockSlot.jsx"><code>import { Suspense, lazy } from 'react';
 
-const Profile = lazy(() =&gt; import('./Profile'));
+const Clock = lazy(() =&gt; import('./widgets/Clock'));
 
-function App() {
+function ClockSlot() {
   return (
-    &lt;Suspense fallback={&lt;p&gt;Loading profile...&lt;/p&gt;}&gt;
-      &lt;Profile /&gt;
+    &lt;Suspense fallback={&lt;WidgetLoading /&gt;}&gt;
+      &lt;Clock /&gt;
     &lt;/Suspense&gt;
   );
 }</code></pre>
-        <ul class="points">
-          <li><strong><code>lazy()</code></strong> loads the component's code.</li>
-          <li><strong><code>Suspense</code></strong> is a boundary: “if anything inside is waiting, show this.”</li>
-          <li><strong><code>fallback</code></strong> is the temporary UI shown while the lazy component waits.</li>
-          <li>Once the component is ready, React shows the <strong>actual component</strong>.</li>
+        <ul class="points stagger">
+          <li>The first render of <code>&lt;Clock /&gt;</code> starts loading its code.</li>
+          <li>While the code isn't there, the component <strong>suspends</strong>.</li>
+          <li>The nearest <code>Suspense</code> shows its <strong>fallback</strong>, then swaps in the real widget.</li>
         </ul>
       </div>
-      <div class="flow" aria-label="Flow: Render Profile, module pending, show fallback, module ready, show Profile">
-        <div class="node blue">Render &lt;Profile /&gt;</div>
+      <div class="flow live" aria-label="Flow: render Clock, code not loaded, show fallback, code arrives, show Clock">
+        <div class="node blue">Render &lt;Clock /&gt;</div>
         <div class="arrow">→</div>
-        <div class="node decision">Module pending?<small>code not here yet</small></div>
+        <div class="node decision">Code loaded?<small>not yet</small></div>
         <div class="arrow">→</div>
-        <div class="node amber">Show fallback<small>“Loading profile...”</small></div>
+        <div class="node amber">Show fallback<small>&lt;WidgetLoading /&gt;</small></div>
         <div class="arrow">→</div>
-        <div class="node gray">Module ready<small>chunk arrived</small></div>
+        <div class="node">Code arrives<small>chunk loaded</small></div>
         <div class="arrow">→</div>
-        <div class="node green">Show Profile</div>
+        <div class="node green">Show Clock</div>
       </div>
     </div>
   </section>
 
-  <!-- ======================= 4. Understand the delay ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="4 of 8: Understand the delay" data-title="Understand the delay">
+  <!-- ======================= 5. Setup ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="5 of 13: How a new tab loads" data-title="Step 3 · How a new tab loads">
     <div class="slide-inner">
       <header>
-        <p class="kicker">The article's main point</p>
-        <h2>The code is ready, but the reveal isn't immediate</h2>
-        <p class="lead">In Tab Widgets, widget code was ready at <strong>~100 ms</strong>, but the widgets only appeared at <strong>~380 ms</strong>.</p>
+        <p class="kicker">Step 3 · The setup</p>
+        <h2>How a new tab loads</h2>
       </header>
-
-      <div class="card">
-        <div class="step-dots" aria-hidden="true">
-          <span class="step-dot" style="--max:440;--at:0">1</span>
-          <span class="step-dot" style="--max:440;--at:40">2</span>
-          <span class="step-dot" style="--max:440;--at:80">3</span>
-          <span class="step-dot" style="--max:440;--at:100">4</span>
-          <span class="step-dot" style="--max:440;--at:380">5</span>
-        </div>
-        <div class="lane">
-          <div class="lane-label">Initial render<small>normal Suspense</small></div>
-          <div class="track" aria-label="Fallback from 80 to 380 ms, code ready at 100 ms, revealed at 380 ms">
-            <span class="seg gray" style="--from:80;--to:100"></span>
-            <span class="seg hold" style="--from:100;--to:380">React holds the reveal</span>
-            <span class="seg green" style="--from:380;--to:440">shown</span>
-            <span class="mark" style="--at:100"></span>
-          </div>
-        </div>
-        <div class="lane" style="margin-top:1rem">
-          <div class="lane-label">Transition update<small>content already visible</small></div>
-          <div class="track" aria-label="Old content stays visible until new content is ready">
-            <span class="seg old" style="--from:0;--to:330">old content stays · isPending</span>
-            <span class="seg green" style="--from:330;--to:440">new</span>
-          </div>
-        </div>
-        <div class="legend-steps" style="margin-top:1rem">
-          <span><b>1</b>Render starts</span>
-          <span><b>2</b>Lazy module pending</span>
-          <span><b>3</b>Fallback appears</span>
-          <span><b>4</b>Module resolves</span>
-          <span><b>5</b>Component revealed</span>
-        </div>
+      <div class="flow live" aria-label="Startup in five steps">
+        <div class="node"><b>1</b>Load main bundle</div>
+        <div class="arrow">→</div>
+        <div class="node"><b>2</b>Read saved pages &amp; widgets</div>
+        <div class="arrow">→</div>
+        <div class="node"><b>3</b>Load app shell &amp; widget list</div>
+        <div class="arrow">→</div>
+        <div class="node blue"><b>4</b>Render the page</div>
+        <div class="arrow">→</div>
+        <div class="node amber"><b>5</b>Load each widget's code<small>as it renders</small></div>
       </div>
+      <div class="grid-2" style="align-items:center">
+        <pre class="code" data-label="Widgets.jsx (simplified)"><code>// One chunk per widget
+const Clock = lazy(() =&gt; import('./widgets/Clock'));
+const Notes = lazy(() =&gt; import('./widgets/Notes'));
 
-      <div class="grid-2">
-        <div class="callout amber"><strong>Why the wait?</strong> React reveals suspended content <strong>at most once every 300 ms</strong>, counted from when a fallback was last shown (<code>FALLBACK_THROTTLE_MS</code>). It's intentional, to avoid flicker. It's a <strong>throttle</strong>, not a fixed delay for every component: if the code arrives after 300 ms, there's no extra wait.</div>
-        <div class="callout"><strong>Transition vs normal:</strong> when a transition updates content that's already visible, React keeps the old content on screen (no fallback flash). But a boundary that <strong>mounts for the first time</strong> still shows its fallback; a transition can't skip it.</div>
+// One Suspense boundary per widget
+&lt;Suspense fallback={&lt;WidgetLoading /&gt;}&gt;
+  &lt;Clock /&gt;
+&lt;/Suspense&gt;</code></pre>
+        <div>
+          <div class="bounds stagger" aria-label="Diagram: each widget on the page sits in its own Suspense boundary">
+            <div>Clock</div><div>Weather</div><div>Notes</div><div>To-do</div><div>Quote</div><div>Music</div>
+          </div>
+          <p class="dim small" style="margin-top:.6rem">Each widget waits on its own boundary, so one slow widget doesn't blank the page.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ======================= 5. Interactive demo ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="5 of 8: Interactive demo" data-title="Interactive demo">
+  <!-- ======================= 6. First guess ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="6 of 13: First guess, the bundle" data-title="Step 4 · First guess: the bundle">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Try it · simulation</p>
-        <h2>Try the loading states yourself</h2>
+        <p class="kicker">Step 4 · The problem</p>
+        <h2>First guess: the bundle is too big</h2>
+        <p class="lead">The page took a noticeable beat to fill in. So they made the startup code smaller.</p>
       </header>
+      <div class="card same" aria-label="Two bundle changes and their effect">
+        <div class="same-row head"><span>What they changed</span><span>Startup code</span><span>When widgets appear</span></div>
+        <div class="same-row">
+          <span><strong>Moved the modals out</strong><small>A shared <code>~/ui</code> index re-exported every modal</small></span>
+          <div class="size-wrap"><div class="size"><i style="--w:66%;--d:0"></i></div><em>−100 KB</em></div>
+          <span><span class="tag">no change</span></span>
+        </div>
+        <div class="same-row">
+          <span><strong>Moved luxon out of main.js</strong><small>The 283 KB startup file got smaller</small></span>
+          <div class="size-wrap"><div class="size"><i style="--w:80%;--d:1"></i></div><em>smaller</em></div>
+          <span><span class="tag">no change</span> <span class="dim small">· reverted</span></span>
+        </div>
+      </div>
+      <div class="callout green"><strong>Bytes weren't the bottleneck.</strong> An extension reads its files from local disk, so a few hundred KB cost very little.</div>
+    </div>
+  </section>
 
-      <div class="demo">
-        <div class="card controls">
+  <!-- ======================= 7. Idle gap ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="7 of 13: The idle gap" data-title="Step 5 · The idle gap">
+    <div class="slide-inner">
+      <header>
+        <p class="kicker">Step 5 · The problem</p>
+        <h2>The profile showed an idle gap</h2>
+        <p class="lead">Production build, headless Chromium: code ready at <strong>~100 ms</strong>, widgets shown at <strong>~380 ms</strong>.</p>
+      </header>
+      <div class="card player" data-max="440" data-speed="8" data-autoplay>
+        <div class="player-bar"><span class="ms" aria-hidden="true">0 ms</span><span class="hint">Slow motion · 8×</span><button class="btn replay" type="button">↺ Replay</button></div>
+        <div class="split wide">
           <div>
-            <span class="field-label" id="dur-label">Loading duration</span>
-            <div class="presets" role="group" aria-labelledby="dur-label">
-              <button class="btn" type="button" data-preset="40">Very fast</button>
-              <button class="btn" type="button" data-preset="400">Moderate</button>
-              <button class="btn" type="button" data-preset="1500">Slow</button>
+            <div class="tl">
+              <div class="tl-row"><span class="tl-label">Main thread</span>
+                <div class="track has-tick" style="--max:440" aria-label="Busy until 100 ms, idle until about 375 ms, then renders">
+                  <span class="seg blue" style="--from:0;--to:100">load + run JS</span>
+                  <span class="seg idle" style="--from:100;--to:372">idle: nothing to do</span>
+                  <span class="seg amber" style="--from:372;--to:392"></span>
+                  <span class="tick" style="--at:100">code ready</span>
+                  <span class="tick" style="--at:380">timers fire → render</span>
+                  <span class="future"></span><span class="ph"></span>
+                </div>
+              </div>
+              <div class="tl-row"><span class="tl-label">Screen</span>
+                <div class="track" style="--max:440" aria-label="Blank, then placeholders from 80 ms, widgets at 380 ms">
+                  <span class="seg gray" style="--from:0;--to:80">blank</span>
+                  <span class="seg amber" style="--from:80;--to:380">placeholders</span>
+                  <span class="seg green" style="--from:380;--to:440">widgets</span>
+                  <span class="future"></span><span class="ph"></span>
+                </div>
+              </div>
             </div>
-            <div class="range-row" style="margin-top:.7rem">
-              <input id="duration" type="range" min="0" max="2000" step="10" value="40" aria-label="Simulated loading duration in milliseconds">
-              <output id="duration-out" for="duration">40 ms</output>
-            </div>
+            <div class="tl-axis" style="--max:440" aria-hidden="true"><span style="--at:0">0</span><span style="--at:100">100</span><span style="--at:200">200</span><span style="--at:300">300</span><span style="--at:400">400 ms</span></div>
           </div>
-          <fieldset style="border:0;margin:0;padding:0">
-            <legend class="field-label">How the component is shown</legend>
-            <div class="radio-row">
-              <label><input type="radio" name="mode" value="suspense" checked><span>Suspense fallback<small>React 19 style: reveal throttled to 300 ms after the fallback</small></span></label>
-              <label><input type="radio" name="mode" value="manual"><span>Manual placeholder (no suspend)<small>The article's fix: show the placeholder yourself, swap when ready</small></span></label>
-            </div>
-          </fieldset>
-          <div class="actions">
-            <button class="btn primary" type="button" id="load-btn">▶ Load component</button>
-            <button class="btn" type="button" id="reset-btn">↺ Reset</button>
-          </div>
-          <p class="sim-note"><strong>Simulation:</strong> an educational model of React's behaviour. Real timing varies with the browser, device and network.</p>
-        </div>
-
-        <div class="card">
-          <div class="stage" id="stage" aria-live="polite">Click “Load component”</div>
-          <div class="demo-track" id="demo-track" aria-hidden="true">
-            <span class="seg gray" id="bar-fallback" style="--from:0;--to:0"></span>
-            <span class="seg green" id="bar-shown" style="--from:0;--to:0"></span>
-            <span class="mark" id="bar-code" style="--at:-50"></span>
-          </div>
-          <div class="demo-axis" aria-hidden="true"><span>0</span><span id="axis-mid">300 ms</span><span id="axis-max">600 ms</span></div>
-          <ul class="log" id="log" aria-live="polite"><li class="empty">The status log appears here.</li></ul>
+          <div class="browser mini" data-shell="80" data-nav="80" data-times="380,380,380,380,380,380" aria-label="Illustration: placeholders until 380 ms, then all widgets at once"></div>
         </div>
       </div>
+      <p class="callout amber">The browser had <strong>nothing to do</strong> for most of the wait. Then all the widgets appeared <strong>at once</strong>.</p>
     </div>
   </section>
 
-  <!-- ======================= 6. useTransition ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="6 of 8: Suspense with useTransition" data-title="Suspense with useTransition">
+  <!-- ======================= 8. Throttle ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="8 of 13: React's 300 ms throttle" data-title="Step 6 · The cause: a 300 ms throttle">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Step 3</p>
-        <h2>Suspense + <code style="font-size:.85em">useTransition</code></h2>
+        <p class="kicker">Step 6 · The cause</p>
+        <h2>React holds the reveal, on purpose</h2>
       </header>
-      <div class="grid-2" style="align-items:start">
-        <pre class="code tight" data-label="App.jsx"><code>import { Suspense, lazy, useState, useTransition } from 'react';
+      <div class="card player" data-max="440" data-speed="8" data-autoplay>
+        <div class="player-bar"><span class="ms" aria-hidden="true">0 ms</span><span class="hint">Slow motion · 8× · illustrative</span><button class="btn replay" type="button">↺ Replay</button></div>
+        <div class="tl">
+          <div class="tl-row"><span class="tl-label">Throttle<small>300 ms rule</small></span>
+            <div class="track has-tick" style="--max:440" aria-label="A 300 ms window from when the fallback appears">
+              <span class="seg win" style="--from:80;--to:380">300 ms window</span>
+              <span class="tick" style="--at:80">fallback shown</span>
+              <span class="tick" style="--at:380">reveal</span>
+              <span class="future"></span><span class="ph"></span>
+            </div>
+          </div>
+          <div class="tl-row"><span class="tl-label">Clock</span>
+            <div class="track" style="--max:440">
+              <span class="seg amber" style="--from:80;--to:90"></span>
+              <span class="seg hold" style="--from:90;--to:380">code ready · held back</span>
+              <span class="seg green" style="--from:380;--to:440">shown</span>
+              <span class="dot" style="--at:90"></span>
+              <span class="future"></span><span class="ph"></span>
+            </div>
+          </div>
+          <div class="tl-row"><span class="tl-label">Notes</span>
+            <div class="track" style="--max:440">
+              <span class="seg amber" style="--from:80;--to:100"></span>
+              <span class="seg hold" style="--from:100;--to:380"></span>
+              <span class="seg green" style="--from:380;--to:440">shown</span>
+              <span class="dot" style="--at:100"></span>
+              <span class="future"></span><span class="ph"></span>
+            </div>
+          </div>
+          <div class="tl-row"><span class="tl-label">To-do</span>
+            <div class="track" style="--max:440">
+              <span class="seg amber" style="--from:80;--to:115"></span>
+              <span class="seg hold" style="--from:115;--to:380"></span>
+              <span class="seg green" style="--from:380;--to:440">shown</span>
+              <span class="dot" style="--at:115"></span>
+              <span class="future"></span><span class="ph"></span>
+            </div>
+          </div>
+        </div>
+        <div class="key" aria-hidden="true">
+          <span><i style="background:var(--amber-soft);box-shadow:inset 0 0 0 1.5px rgba(204,167,0,.5)"></i>Fallback</span>
+          <span><i style="background:var(--blue);border-radius:50%;width:.65rem"></i>Code ready</span>
+          <span><i style="background:repeating-linear-gradient(135deg,rgba(204,167,0,.5) 0 3px,transparent 3px 6px)"></i>Ready, but held</span>
+          <span><i style="background:var(--green-soft);box-shadow:inset 0 0 0 1.5px rgba(137,209,133,.6)"></i>Shown together</span>
+        </div>
+      </div>
+      <div class="grid-2 stagger">
+        <div class="card"><h3>1 · <code>lazy()</code> always suspends first</h3><p>The import only starts on the first render, so that render always shows the fallback.</p></div>
+        <div class="card"><h3>2 · Reveals are throttled</h3><p>After a fallback appears, React waits until <strong>300 ms</strong> have passed (<code>FALLBACK_THROTTLE_MS</code>). Everything ready by then shows together.</p></div>
+      </div>
+      <p class="dim small">The throttle stops flicker, and that's a good default. Here the code was ready at ~100 ms, so the wait became the biggest delay. <code>startTransition</code> doesn't help: a boundary that mounts for the first time still shows its fallback.</p>
+    </div>
+  </section>
 
-const Dashboard = lazy(() =&gt; import('./Dashboard'));
+  <!-- ======================= 9. Fix #1 ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="9 of 13: Fix 1, preload" data-title="Step 7 · Fix #1: preload before render">
+    <div class="slide-inner">
+      <header>
+        <p class="kicker">Step 7 · Fix #1</p>
+        <h2>Load the widgets before the first render</h2>
+      </header>
+      <div class="grid-2" style="align-items:center">
+        <pre class="code" data-label="main.jsx (simplified)"><code>// 1. Start each widget's import before rendering
+//    (preloadLazy calls React.lazy's private _init)
+const loading = pageWidgets.map(preloadLazy);
 
-export default function App() {
-  const [page, setPage] = useState('home');
-  const [isPending, startTransition] = useTransition();
+// 2. Wait for them, but never more than 100 ms
+await Promise.race([Promise.all(loading), wait(100)]);
 
-  function openDashboard() {
-    startTransition(() =&gt; {
-      setPage('dashboard');
-    });
-  }
-
-  return (
-    &lt;&gt;
-      &lt;button onClick={openDashboard}&gt;
-        Open dashboard
-      &lt;/button&gt;
-
-      {isPending &amp;&amp; &lt;p&gt;Updating...&lt;/p&gt;}
-
-      &lt;Suspense fallback={&lt;p&gt;Loading dashboard...&lt;/p&gt;}&gt;
-        {page === 'dashboard' ? &lt;Dashboard /&gt; : &lt;p&gt;Home page&lt;/p&gt;}
-      &lt;/Suspense&gt;
-    &lt;/&gt;
-  );
-}</code></pre>
-        <div style="display:grid;gap:1.1rem">
+// 3. Render: widgets with code ready don't suspend
+root.render(&lt;App /&gt;);</code></pre>
+        <div style="display:grid;gap:1rem">
+          <div>
+            <p class="stat"><span class="from">380</span> → <span class="to">95 ms</span></p>
+            <p class="dim small">Widgets visible, headless Chromium</p>
+          </div>
+          <div class="tl grow" aria-label="Before: fallback then held until 380 ms. Fix 1: wait up to 100 ms, then widgets show at about 95 ms">
+            <div class="tl-row"><span class="tl-label">Before</span>
+              <div class="track" style="--max:440"><span class="seg hold" style="--from:80;--to:380;--d:0">fallback, held</span><span class="seg green" style="--from:380;--to:440;--d:1"></span></div>
+            </div>
+            <div class="tl-row"><span class="tl-label">Fix #1</span>
+              <div class="track" style="--max:440"><span class="seg gray" style="--from:0;--to:95;--d:0">wait</span><span class="seg green" style="--from:95;--to:440;--d:1">widgets shown</span></div>
+            </div>
+          </div>
           <ul class="points">
-            <li><strong><code>useTransition()</code></strong> marks an update as <strong>non-urgent</strong>.</li>
-            <li>Content that's already revealed (“Home page”) <strong>stays on screen</strong> while the transition is pending.</li>
-            <li>Use <strong><code>isPending</code></strong> to show an optional small indicator like “Updating...”.</li>
-            <li>The Suspense fallback and the transition's pending UI are <strong>related but different</strong> concepts.</li>
+            <li>A widget slower than 100 ms <strong>still suspends</strong>, and can now show later.</li>
+            <li>It relies on <strong>React's private fields</strong>, so a unit test guards React upgrades.</li>
           </ul>
-          <div class="card" aria-label="Diagram comparing a normal update and a transition update">
-            <div class="screens">
-              <span class="row-label">Normal update<small>setPage()</small></span>
-              <div class="screen">Home page</div>
-              <div class="screen fallback">Loading dashboard...</div>
-              <div class="screen new">Dashboard</div>
-              <span class="row-label">Transition<small>startTransition()</small></span>
-              <div class="screen">Home page</div>
-              <div class="screen">Home page<span class="pending">Updating...</span></div>
-              <div class="screen new">Dashboard</div>
-            </div>
-          </div>
-          <p class="dim small">Note: a transition doesn't skip the fallback of a Suspense boundary that mounts for the first time. Behaviour can differ slightly in the development build, so verify in a production build.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ======================= 7. Common mistakes ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="7 of 8: Common mistakes" data-title="Common mistakes">
+  <!-- ======================= 10. Fix #2 ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="10 of 13: Fix 2, don't suspend" data-title="Step 8 · Fix #2: don't suspend at all">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Watch out</p>
-        <h2>Common mistakes</h2>
+        <p class="kicker">Step 8 · Fix #2 · the one that held up</p>
+        <h2>Don't suspend at all</h2>
       </header>
-      <div class="grid-3">
-        <div class="card red"><h3>1 · <code>lazy()</code> without Suspense</h3><p>A lazy component that suspends needs a Suspense boundary above it.</p></div>
-        <div class="card red"><h3>2 · Boundary too high or too low</h3><p>Too high: the whole page goes blank. Too low: spinners everywhere. Place it with the loading experience in mind.</p></div>
-        <div class="card red"><h3>3 · A big spinner for a tiny delay</h3><p>It looks like a flash. Use a same-size skeleton, or show nothing at all.</p></div>
-        <div class="card red"><h3>4 · Assuming fallbacks come and go instantly</h3><p>React throttles reveals. For code that loads fast, show the placeholder yourself instead of suspending (the article's fix: ~200 ms faster).</p></div>
-        <div class="card red"><h3>5 · Confusing <code>useTransition</code> with Suspense</h3><p>Transition = update priority. Suspense = loading boundary. They work together, but they aren't the same thing.</p></div>
-        <div class="card red"><h3>6 · Expecting Suspense to handle every async task</h3><p>Only <code>lazy()</code>, <code>use()</code> and Suspense-ready frameworks. A normal <code>useEffect</code> fetch doesn't trigger Suspense.</p></div>
+      <div class="grid-2" style="align-items:center">
+        <pre class="code" data-label="WidgetSlot.jsx"><code>function WidgetSlot({ Widget, config }) {
+  // true once the widget's code has loaded
+  const isReady = useLazyReady(Widget);
+
+  return isReady
+    ? &lt;Widget {...config} /&gt;  // normal re-render
+    : &lt;WidgetLoading /&gt;;      // plain content
+}</code></pre>
+        <ul class="points stagger">
+          <li><code>useLazyReady</code> starts the import and <strong>re-renders</strong> when the code lands.</li>
+          <li>The placeholder is <strong>ordinary content</strong>, not a Suspense fallback.</li>
+          <li>Nothing suspends, so <strong>the 300 ms throttle never applies</strong>. Widgets appear one by one.</li>
+          <li>Keep the Suspense and error boundary around it as a safety net.</li>
+        </ul>
       </div>
       <div class="grid-2">
-        <div class="card">
-          <span class="tag red">Bad</span>
-          <div class="ui-mock" style="margin-top:.7rem" aria-label="Bad: the whole page is covered by a big spinner for a tiny delay">
-            <div class="blk"></div><div class="blk"></div><div class="blk"></div><div class="blk"></div>
-            <div class="overlay"><div class="spinner"></div></div>
+        <div>
+          <p class="flow-label" style="color:var(--amber)">Before · suspend</p>
+          <div class="flow sm live">
+            <div class="node">Render</div><div class="arrow">→</div>
+            <div class="node decision">Suspends</div><div class="arrow">→</div>
+            <div class="node amber">Fallback</div><div class="arrow">→</div>
+            <div class="node amber">Held ≤ 300 ms</div><div class="arrow">→</div>
+            <div class="node">Shown in a batch</div>
           </div>
-          <p class="dim small" style="margin-top:.5rem">A full-page spinner for a 50 ms load: a flash and a layout jump.</p>
         </div>
-        <div class="card">
-          <span class="tag green">Good</span>
-          <div class="ui-mock" style="margin-top:.7rem" aria-label="Good: the page stays, only the loading card shows a same-size skeleton">
-            <div class="blk"></div><div class="blk skeleton"></div><div class="blk"></div><div class="blk"></div>
+        <div>
+          <p class="flow-label" style="color:var(--green)">After · gate</p>
+          <div class="flow sm live">
+            <div class="node">Render</div><div class="arrow">→</div>
+            <div class="node blue">Not ready</div><div class="arrow">→</div>
+            <div class="node">Placeholder</div><div class="arrow">→</div>
+            <div class="node blue">Code lands → re-render</div><div class="arrow">→</div>
+            <div class="node green">Shown right away</div>
           </div>
-          <p class="dim small" style="margin-top:.5rem">The page stays put; only the loading card shows a same-size skeleton.</p>
         </div>
       </div>
+      <p class="dim small">Want to avoid React's private fields? Cache <code>import()</code> yourself and swap in the component with state (<code>useLoadedComponent</code> in <code>demo-app/src/lazy</code>).</p>
     </div>
   </section>
 
-  <!-- ======================= 8. Recap ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="8 of 8: Recap" data-title="Recap">
+  <!-- ======================= 11. See it ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="11 of 13: Before and after, animated" data-title="Step 9 · See the difference">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Recap</p>
-        <h2>Quick summary</h2>
+        <p class="kicker">Step 9 · See it</p>
+        <h2>Before vs after, in slow motion</h2>
       </header>
-      <div class="defs">
-        <div><code>lazy()</code><span class="muted">Loads a component's code when it's needed.</span></div>
-        <div><code>Suspense</code><span class="muted">Defines the fallback UI for suspended content.</span></div>
-        <div><code>fallback</code><span class="muted">Temporary loading interface.</span></div>
-        <div><code>useTransition()</code><span class="muted">Marks updates as non-urgent and helps avoid loading flashes during transitions.</span></div>
+      <div class="card player" data-max="640" data-speed="6" data-autoplay id="compare">
+        <div class="player-bar">
+          <span class="ms" aria-hidden="true">0 ms</span>
+          <span class="hint">Timings from the article's Chrome measurements</span>
+          <button class="btn" type="button" id="speed-btn" aria-pressed="true">Slow motion</button>
+          <button class="btn replay" type="button">↺ Replay</button>
+        </div>
+        <div class="grid-2">
+          <div>
+            <p class="flow-label"><span class="sw before"></span>Before · Suspense</p>
+            <div class="browser" data-shell="200" data-nav="274" data-times="540,540,540,540,540,540" aria-label="Before: every widget appears together at about 540 ms"></div>
+            <p class="small muted" style="margin-top:.5rem" data-count>0 / 6 widgets</p>
+          </div>
+          <div>
+            <p class="flow-label"><span class="sw after"></span>After · no suspend</p>
+            <div class="browser" data-shell="200" data-nav="326" data-times="298,544,305,314,322,336" aria-label="After: widgets appear one by one from about 298 ms; weather waits for its data until about 544 ms"></div>
+            <p class="small muted" style="margin-top:.5rem" data-count>0 / 6 widgets</p>
+          </div>
+        </div>
+        <div class="track" style="--max:640;height:.6rem;margin-top:.9rem" aria-hidden="true"><span class="seg blue" style="--from:0;--to:640;top:0;bottom:0"></span><span class="future"></span></div>
       </div>
-      <blockquote class="quote">“Lazy loading loads the component; Suspense handles the loading state. With a transition, React can keep already-visible content on screen smoothly.”</blockquote>
+      <p class="dim small">Weather waits for its data, so it still lands late in both. Placeholder timing is simplified. Want real React? Open the <a href="demo/">live demo app</a>.</p>
+    </div>
+  </section>
+
+  <!-- ======================= 12. Results ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="12 of 13: Results" data-title="Step 10 · Results">
+    <div class="slide-inner">
+      <header>
+        <p class="kicker">Step 10 · Results</p>
+        <h2>Widgets show ~200 ms sooner</h2>
+        <p class="dim small" style="margin-top:.5rem">Chrome 154 · Windows 11 · 20-widget dashboard (16 visible) · signed out · mean of 4 cold tabs</p>
+      </header>
+      <figure class="card chart" aria-label="Bar chart: time until each milestone, before and after the fix">
+        <div class="legend"><span><i class="sw before"></i>Before (Suspense)</span><span><i class="sw after"></i>After (no suspend)</span></div>
+        <div class="bars stagger">
+          <div class="bar-row"><span class="bar-label">Nav bar visible</span>
+            <div class="bar-track"><div class="bar before" style="--v:274;--d:0" tabindex="0" data-tip="Before · Nav bar visible · 274 ms"><b>274</b></div><div class="bar after" style="--v:326;--d:1" tabindex="0" data-tip="After · Nav bar visible · 326 ms"><b>326</b></div></div>
+            <span class="delta">+52 ms<small>a little later</small></span></div>
+          <div class="bar-row"><span class="bar-label">First widget</span>
+            <div class="bar-track"><div class="bar before" style="--v:540;--d:2" tabindex="0" data-tip="Before · First widget content · 540 ms"><b>540</b></div><div class="bar after" style="--v:298;--d:3" tabindex="0" data-tip="After · First widget content · 298 ms"><b>298</b></div></div>
+            <span class="delta">−242 ms<small>faster</small></span></div>
+          <div class="bar-row"><span class="bar-label">85% of widgets</span>
+            <div class="bar-track"><div class="bar before" style="--v:540;--d:4" tabindex="0" data-tip="Before · 85% of widget content · 540 ms"><b>540</b></div><div class="bar after" style="--v:336;--d:5" tabindex="0" data-tip="After · 85% of widget content · 336 ms"><b>336</b></div></div>
+            <span class="delta">−204 ms<small>faster</small></span></div>
+          <div class="bar-row"><span class="bar-label">All widgets</span>
+            <div class="bar-track"><div class="bar before" style="--v:540;--d:6" tabindex="0" data-tip="Before · All widget content · 540 ms"><b>540</b></div><div class="bar after" style="--v:544;--d:7" tabindex="0" data-tip="After · All widget content · 544 ms"><b>544</b></div></div>
+            <span class="delta">+4 ms<small>same (waits on data)</small></span></div>
+        </div>
+        <div class="chart-axis" aria-hidden="true"><span></span><div><span>0</span><span>200</span><span>400</span><span>600</span><span>800 ms</span></div><span></span></div>
+        <table class="sr-only">
+          <caption>Time until each milestone, in ms</caption>
+          <tr><th>Metric</th><th>Before</th><th>After</th></tr>
+          <tr><td>Nav bar visible</td><td>274</td><td>326</td></tr>
+          <tr><td>First widget content</td><td>540</td><td>298</td></tr>
+          <tr><td>85% of widget content</td><td>540</td><td>336</td></tr>
+          <tr><td>All widget content</td><td>540</td><td>544</td></tr>
+        </table>
+      </figure>
+      <div class="callout green">~107 new tabs a day → about <strong>20 seconds a day</strong>, or <strong>~2 hours a year</strong>, saved.</div>
+    </div>
+  </section>
+
+  <!-- ======================= 13. Takeaways ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="13 of 13: Takeaways" data-title="Takeaways">
+    <div class="slide-inner">
+      <header>
+        <p class="kicker">Takeaways</p>
+        <h2>What they learned</h2>
+      </header>
+      <div class="grid-4 stagger">
+        <div class="card"><span class="num">1</span><h3>Measure when things appear</h3><p>A smaller bundle didn't change when anything showed up.</p></div>
+        <div class="card"><span class="num">2</span><h3>Look for idle time</h3><p>The biggest win was a gap where the browser did nothing.</p></div>
+        <div class="card"><span class="num">3</span><h3>Know your framework's defaults</h3><p>The 300 ms throttle is on purpose. It's not free.</p></div>
+        <div class="card"><span class="num">4</span><h3>Check on real machines</h3><p>Found in headless Chromium, confirmed in Chrome on Windows.</p></div>
+      </div>
       <div class="grid-2">
-        <div class="card">
+        <blockquote class="quote">
           <h3>Interview answer (30 sec)</h3>
-          <p><code>React.lazy</code> splits a component into its own chunk and loads it on first render. While it loads, the nearest <code>Suspense</code> boundary shows its fallback. React throttles revealing suspended content, at most once every 300 ms after a fallback appears, to avoid flicker, so even fast code can wait. <code>useTransition</code> keeps already-visible content on screen during updates instead of showing a fallback, but it doesn't skip the fallback of a boundary mounting for the first time.</p>
-        </div>
+          <p><code>React.lazy</code> loads a component's code on first render, and the nearest <code>Suspense</code> shows a fallback meanwhile. React throttles reveals: after a fallback appears, it waits until 300 ms have passed, so code ready at 100 ms can still show at ~380 ms. For fast code, preload it before rendering, or render your own placeholder and swap in the component with a normal state update so nothing suspends.</p>
+        </blockquote>
         <div class="card">
           <h3>Learn more</h3>
           <ul class="points">
             <li><a href="https://tabwidgets.com/blog/react-lazy-suspense-delay" rel="noopener">Original article</a>: the full story and numbers</li>
-            <li><a href="demo/">Live React demo app</a>: real React 19, four approaches side by side</li>
+            <li><a href="demo/">Live demo app</a>: real React 19, four approaches side by side</li>
             <li><a href="https://react.dev/reference/react/Suspense" rel="noopener">React docs: Suspense</a></li>
           </ul>
         </div>
@@ -649,18 +808,118 @@ export default function App() {
 <nav class="nav" aria-label="Slide controls">
   <span class="nav-title" id="nav-title">Introduction</span>
   <button class="btn" type="button" id="prev" aria-label="Previous slide">← Prev</button>
-  <span class="nav-count" id="nav-count" aria-live="polite">1 / 8</span>
+  <span class="nav-count" id="nav-count" aria-live="polite">1 / 13</span>
   <button class="btn" type="button" id="next" aria-label="Next slide">Next →</button>
 </nav>
 
 <script>
 (function () {
   "use strict";
+  var each = function (list, fn) { Array.prototype.forEach.call(list, fn); };
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ================= Browser mocks (built once) ================= */
+  var WIDGETS = [
+    ["Clock", "10:42", "Thu, 12 Nov"],
+    ["Weather", "☀ 24°", "Sunny"],
+    ["Notes", "Demo at 3 pm", "2 notes"],
+    ["To-do", "☑ Slides", "☐ Practice"],
+    ["Quote", "“Ship small.”", "daily quote"],
+    ["Music", "♫ Lo-fi", "▶ 1:24"]
+  ];
+  each(document.querySelectorAll(".browser"), function (el) {
+    var times = el.getAttribute("data-times").split(",");
+    var plus = el.hasAttribute("data-newtab")
+      ? '<button type="button" class="b-plus" aria-label="Open a new tab">+</button>'
+      : '<span class="b-plus" aria-hidden="true">+</span>';
+    el.innerHTML =
+      '<div class="b-top"><span class="b-tab">New Tab</span>' + plus + "</div>" +
+      '<div class="b-bar" aria-hidden="true"><span class="b-url">New Tab</span></div>' +
+      '<div class="b-page" aria-hidden="true" data-at="' + el.getAttribute("data-shell") + '">' +
+        '<div class="b-nav" data-at="' + el.getAttribute("data-nav") + '"><span>Home</span><span>Work</span><span>+</span></div>' +
+        '<div class="w-grid">' + WIDGETS.map(function (w, i) {
+          return '<div class="w" data-at="' + times[i] + '"><div class="w-skel"></div><div class="w-body"><small>' + w[0] + "</small><b>" + w[1] + "</b><span>" + w[2] + "</span></div></div>";
+        }).join("") + "</div>" +
+      "</div>";
+  });
+
+  /* ================= Timeline players ================= */
+  // A player animates a time value t (ms) from 0 to data-max, slowed down by data-speed.
+  // Every [data-at] inside gets .on once t reaches it; tracks dim the part that hasn't happened yet.
+  each(document.querySelectorAll(".player"), function (p) {
+    var max = Number(p.getAttribute("data-max"));
+    var items = p.querySelectorAll("[data-at]");
+    var ms = p.querySelector(".ms");
+    var counts = p.querySelectorAll("[data-count]");
+    var raf = 0;
+
+    function render(t) {
+      p.style.setProperty("--t", t);
+      each(items, function (el) { el.classList.toggle("on", t >= Number(el.getAttribute("data-at"))); });
+      if (ms) ms.textContent = Math.round(t) + " ms";
+      each(counts, function (el) { el.textContent = el.parentNode.querySelectorAll(".w.on").length + " / 6 widgets"; });
+    }
+    function stop() { cancelAnimationFrame(raf); p.classList.remove("playing"); }
+    function finish() { stop(); render(max); }
+    function play() {
+      if (reduceMotion) { finish(); return; }
+      stop();
+      var speed = Number(p.getAttribute("data-speed")) || 1;
+      var start = performance.now();
+      p.classList.add("playing");
+      (function tick(now) {
+        var t = Math.min(Math.max(0, now - start) / speed, max);
+        render(t);
+        if (t < max) raf = requestAnimationFrame(tick); else p.classList.remove("playing");
+      })(start);
+    }
+    p._player = { play: play, stop: stop, reset: function () { stop(); render(0); } };
+    p._player.reset();
+    var replay = p.querySelector(".replay");
+    if (replay) replay.addEventListener("click", play);
+  });
+
+  // Slide 2: the "+" opens a fresh new tab, which loads from scratch again.
+  var tabCount = 1;
+  each(document.querySelectorAll("button.b-plus"), function (btn) {
+    btn.addEventListener("click", function () {
+      tabCount += 1;
+      document.getElementById("tab-count").textContent = tabCount;
+      btn.closest(".player")._player.play();
+    });
+  });
+
+  // Slide 11: slow motion on/off.
+  var speedBtn = document.getElementById("speed-btn");
+  var compare = document.getElementById("compare");
+  speedBtn.addEventListener("click", function () {
+    var slow = speedBtn.getAttribute("aria-pressed") !== "true";
+    speedBtn.setAttribute("aria-pressed", String(slow));
+    compare.setAttribute("data-speed", slow ? "6" : "1");
+    compare._player.play();
+  });
+
+  /* ================= Entrance + flow animation order ================= */
+  each(document.querySelectorAll(".slide-inner > *"), function (el) {
+    el.style.setProperty("--i", Array.prototype.indexOf.call(el.parentNode.children, el));
+    el.classList.add("rv");
+  });
+  each(document.querySelectorAll(".stagger > *"), function (el) {
+    var host = el.parentNode.closest(".slide-inner > *");
+    var base = host ? Number(host.style.getPropertyValue("--i")) || 0 : 0;
+    var j = Array.prototype.indexOf.call(el.parentNode.children, el);
+    el.style.setProperty("--i", base + 0.6 + j * 0.6);
+    el.classList.add("rv");
+  });
+  each(document.querySelectorAll(".flow.live"), function (flow) {
+    each(flow.querySelectorAll(".node"), function (node, n) { node.style.setProperty("--n", n); });
+  });
 
   /* ================= Slides ================= */
   var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
   var total = slides.length;
   var current = 0;
+  var autoplayTimer = 0;
   var progress = document.getElementById("progress");
   var count = document.getElementById("nav-count");
   var title = document.getElementById("nav-title");
@@ -676,7 +935,12 @@ export default function App() {
       slide.classList.toggle("is-before", i < index);
       slide.setAttribute("aria-hidden", active ? "false" : "true");
       if (active) { slide.removeAttribute("inert"); slide.scrollTop = 0; } else { slide.setAttribute("inert", ""); }
+      each(slide.querySelectorAll(".player"), function (p) { p._player.reset(); });
     });
+    clearTimeout(autoplayTimer);
+    autoplayTimer = setTimeout(function () {
+      each(slides[index].querySelectorAll(".player[data-autoplay]"), function (p) { p._player.play(); });
+    }, reduceMotion ? 0 : 650);
     progress.style.width = ((index + 1) / total) * 100 + "%";
     count.textContent = (index + 1) + " / " + total;
     title.textContent = slides[index].getAttribute("data-title");
@@ -689,11 +953,14 @@ export default function App() {
   slides.forEach(function (s) { s.setAttribute("tabindex", "-1"); });
   prevBtn.addEventListener("click", function () { show(current - 1); });
   nextBtn.addEventListener("click", function () { show(current + 1); });
+  window.addEventListener("hashchange", function () {
+    var n = parseInt(location.hash.replace("#", ""), 10);
+    if (n >= 1 && n <= total) show(n - 1, true);
+  });
 
   document.addEventListener("keydown", function (e) {
     if (e.altKey || e.ctrlKey || e.metaKey) return;
     var tag = (e.target.tagName || "").toLowerCase();
-    // Leave keys alone while a form control (slider, radio) has focus.
     if (tag === "input" || tag === "select" || tag === "textarea") return;
     if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); show(current + 1); }
     else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); show(current - 1); }
@@ -708,25 +975,39 @@ export default function App() {
     if (touchX === null) return;
     var dx = e.changedTouches[0].clientX - touchX, dy = e.changedTouches[0].clientY - touchY;
     touchX = null;
-    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5 && !e.target.closest("input")) show(current + (dx < 0 ? 1 : -1));
+    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) show(current + (dx < 0 ? 1 : -1));
   }, { passive: true });
 
-  var fromHash = parseInt((location.hash || "").replace("#", ""), 10);
-  show(fromHash >= 1 && fromHash <= total ? fromHash - 1 : 0);
+  /* ================= Chart tooltips ================= */
+  var tip = document.getElementById("tip");
+  function showTip(el) {
+    var r = el.getBoundingClientRect();
+    tip.textContent = el.getAttribute("data-tip");
+    tip.classList.add("show");
+    var w = tip.offsetWidth;
+    tip.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width - w / 2)) + "px";
+    tip.style.top = Math.max(8, r.top - tip.offsetHeight - 8) + "px";
+  }
+  function hideTip() { tip.classList.remove("show"); }
+  each(document.querySelectorAll("[data-tip]"), function (el) {
+    el.addEventListener("mouseenter", function () { showTip(el); });
+    el.addEventListener("focus", function () { showTip(el); });
+    el.addEventListener("mouseleave", hideTip);
+    el.addEventListener("blur", hideTip);
+  });
 
   /* ================= Code highlighting (tiny, no library) ================= */
   // Groups: 1 comment · 2 string · 3 operator · 4 JSX tag/bracket · 5 control keyword · 6 storage keyword · 7 attribute · 8 function call
-  var TOKEN = /(\/\/.*)|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")|(=>|&&|===)|(<\/?[A-Za-z][\w.]*|<\/?>|\/?>)|\b(import|from|return|export|default)\b|\b(const|function|let)\b|([a-zA-Z]+)(?==[{"'])|([a-zA-Z_$][\w$]*)(?=\s*\()/g;
+  var TOKEN = /(\/\/.*)|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")|(=>|&&|===)|(<\/?[A-Za-z][\w.]*|<\/?>|\/?>)|\b(import|from|return|export|default|await|async|if|try|catch|new)\b|\b(const|function|let)\b|([a-zA-Z]+)(?==[{"'])|([a-zA-Z_$][\w$]*)(?=\s*\()/g;
   var CLS = [null, "t-com", "t-str", "t-op", "tag", "t-kw", "t-storage", "t-attr", "t-fn"];
-  // JSX tags like VS Code Dark+: grey brackets, teal components, blue html tags.
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
   function tagHtml(text) {
     var parts = /^(<\/?)([A-Za-z][\w.]*)$/.exec(text);
     if (!parts) return '<span class="t-punc">' + esc(text) + "</span>";
     var nameCls = /^[A-Z]/.test(parts[2]) ? "t-type" : "t-tag";
     return '<span class="t-punc">' + esc(parts[1]) + '</span><span class="' + nameCls + '">' + esc(parts[2]) + "</span>";
   }
-  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-  Array.prototype.forEach.call(document.querySelectorAll("pre.code code"), function (el) {
+  each(document.querySelectorAll("pre.code code"), function (el) {
     el.innerHTML = el.textContent.split("\n").map(function (line) {
       var out = "", last = 0, m;
       TOKEN.lastIndex = 0;
@@ -741,98 +1022,8 @@ export default function App() {
     }).join("\n");
   });
 
-  /* ================= Demo (slide 5): educational simulation ================= */
-  var THROTTLE = 300; // React 19 reveals suspended content at most every 300 ms after a fallback
-  var range = document.getElementById("duration");
-  var out = document.getElementById("duration-out");
-  var stage = document.getElementById("stage");
-  var log = document.getElementById("log");
-  var loadBtn = document.getElementById("load-btn");
-  var resetBtn = document.getElementById("reset-btn");
-  var track = document.getElementById("demo-track");
-  var barFallback = document.getElementById("bar-fallback");
-  var barShown = document.getElementById("bar-shown");
-  var barCode = document.getElementById("bar-code");
-  var axisMid = document.getElementById("axis-mid");
-  var axisMax = document.getElementById("axis-max");
-  var presets = Array.prototype.slice.call(document.querySelectorAll("[data-preset]"));
-  var timers = [];
-  var raf = 0;
-
-  function syncPresets() {
-    out.textContent = range.value + " ms";
-    presets.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-preset") === range.value ? "true" : "false"); });
-  }
-  presets.forEach(function (b) {
-    b.addEventListener("click", function () { range.value = b.getAttribute("data-preset"); syncPresets(); });
-  });
-  range.addEventListener("input", syncPresets);
-  syncPresets();
-
-  function addLog(ms, text, color) {
-    var empty = log.querySelector(".empty");
-    if (empty) empty.remove();
-    var li = document.createElement("li");
-    li.className = color || "";
-    li.innerHTML = "<b>" + ms + " ms</b><span>" + text + "</span>";
-    log.appendChild(li);
-  }
-
-  function setSeg(el, from, to) { el.style.setProperty("--from", from); el.style.setProperty("--to", to); }
-
-  function reset() {
-    timers.forEach(clearTimeout);
-    timers = [];
-    cancelAnimationFrame(raf);
-    stage.textContent = "Click “Load component”";
-    log.innerHTML = '<li class="empty">The status log appears here.</li>';
-    setSeg(barFallback, 0, 0);
-    setSeg(barShown, 0, 0);
-    barCode.style.setProperty("--at", -50);
-    loadBtn.disabled = false;
-  }
-
-  function run() {
-    reset();
-    loadBtn.disabled = true;
-    var load = Number(range.value);
-    var mode = document.querySelector('input[name="mode"]:checked').value;
-    var reveal = mode === "suspense" ? Math.max(load, THROTTLE) : load;
-    var scale = Math.max(600, Math.ceil((reveal + 200) / 100) * 100);
-    track.style.setProperty("--max", scale);
-    axisMid.textContent = scale / 2 + " ms";
-    axisMax.textContent = scale + " ms";
-
-    addLog(0, "Render start: &lt;Profile /&gt; renders", "blue");
-    addLog(0, mode === "suspense" ? "Module pending → Suspense shows the fallback" : "Code not loaded yet → we show the placeholder ourselves (no suspend)", "amber");
-    stage.innerHTML = '<div class="skeleton-card">Loading profile...</div>';
-
-    var start = performance.now();
-    (function tick() {
-      var t = Math.min(performance.now() - start, reveal);
-      setSeg(barFallback, 0, t);
-      if (t < reveal) raf = requestAnimationFrame(tick);
-    })();
-
-    timers.push(setTimeout(function () {
-      barCode.style.setProperty("--at", load);
-      addLog(load, "Module resolved: code ready", "blue");
-    }, load));
-
-    timers.push(setTimeout(function () {
-      setSeg(barFallback, 0, reveal);
-      setSeg(barShown, reveal, scale);
-      var held = reveal - load;
-      stage.innerHTML = '<div class="profile"><span class="avatar">👤</span><span><b>Profile loaded</b><span class="dim">The real component has rendered</span></span></div>';
-      addLog(reveal, held > 0
-        ? "Profile revealed. React held it for " + held + " ms after the code was ready (300 ms throttle)"
-        : "Profile revealed. No extra wait", "green");
-      loadBtn.disabled = false;
-    }, reveal));
-  }
-
-  loadBtn.addEventListener("click", run);
-  resetBtn.addEventListener("click", reset);
+  var fromHash = parseInt((location.hash || "").replace("#", ""), 10);
+  show(fromHash >= 1 && fromHash <= total ? fromHash - 1 : 0);
 })();
 </script>
 </body>
