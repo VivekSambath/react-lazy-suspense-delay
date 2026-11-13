@@ -1,0 +1,1 @@
+import{j as e}from"./index-XXnc4Dg0.js";function a(){return e.jsxs("div",{className:"widget weather",children:[e.jsx("div",{className:"big",children:"⛅ 22°"}),e.jsx("div",{className:"muted",children:"Partly cloudy · H 25° L 16°"})]})}export{a as default};

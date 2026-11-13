@@ -10,7 +10,7 @@ by Matthew Wong (Tab Widgets, 29 October 2026).
 
 | Path | What it is |
 | --- | --- |
-| `index.html` | The presentation: 13 slides with animated diagrams, in one self-contained file (HTML, CSS, vanilla JS, no libraries) |
+| `index.html` | The presentation: 15 slides with animated diagrams and an embedded live demo, in one self-contained file (HTML, CSS, vanilla JS, no libraries) |
 | `react-lazy-sample/` | Standalone sample project with each pattern and the article's fixes (run it locally for live demos) |
 | `demo/` | Built React 19 demo app (served at `/demo/`) |
 | `demo-app/` | Source of the demo app (Vite + React 19.1 + TypeScript) |
@@ -18,23 +18,30 @@ by Matthew Wong (Tab Widgets, 29 October 2026).
 
 ## Slides
 
-The deck follows the article step by step, using Tab Widgets (a new-tab extension for Chrome and Edge) as the running example.
+The deck follows the article's table of contents, using Tab Widgets (a new-tab extension for Chrome and Edge) as the running example.
 
-1. Introduction · 2. The app: Tab Widgets · 3. `lazy()` splits the code · 4. Suspense shows a fallback ·
-5. How a new tab loads · 6. First guess: the bundle · 7. The idle gap · 8. React's 300 ms throttle ·
-9. Fix #1: preload before render · 10. Fix #2: don't suspend · 11. Before vs after (animated) ·
-12. Results · 13. Takeaways and an interview answer
+| Article section | Slides |
+| --- | --- |
+| The setup | 2 Tab Widgets · 3 `lazy()` splits the code · 4 Suspense shows a fallback · 5 How a new tab loads |
+| Bytes weren't the bottleneck | 6 First guess: the bundle · 7 The idle gap |
+| React was holding the widgets back on purpose | 8 The 300 ms reveal throttle |
+| First fix: load the widgets before the first render | 9 Preload (code from `demo-app/src/App.tsx`) |
+| The fix that held up: don't suspend at all | 10 Gate (`tiles.tsx`, `useLazyReady.ts`) · 11 Before vs after · 12 Results · 13 Without React's private fields (`useLoadedComponent.ts`) |
+| What we learned | 14 Takeaways and an interview answer |
+| Try it yourself | 15 The live demo, embedded, with a button for each mode |
 
+The code on slides 9, 10 and 13 is taken from `demo-app/src`, and each of those slides has a button that opens that mode in the demo.
 Slides 2, 7, 8 and 11 have slow-motion timeline animations with a **Replay** button.
 
 Keys: `←` `→` / `Space` to move, `Home` / `End` for first and last. On touch screens, swipe.
-Every slide has its own link (`#1` … `#13`).
+Every slide has its own link (`#1` … `#15`).
 
 ## Demo app
 
 Four approaches side by side: **Before** (`React.lazy` + `Suspense`), **Fix #1** (preload, wait up to
 100 ms), **Fix #2** (gate instead of suspend), **Alternative** (own component cache). The timeline
-shows when each widget's code was ready and when it actually appeared.
+shows when each widget's code was ready and when it actually appeared. Each mode has a **Show the code** panel.
+`demo/?embed=1` hides the page header and footer, for the embedded view on slide 15.
 
 ```sh
 cd demo-app

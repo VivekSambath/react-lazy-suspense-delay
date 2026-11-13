@@ -57,6 +57,23 @@ button:focus-visible, select:focus-visible, a:focus-visible, textarea:focus-visi
 .explain h2 { margin: 0 0 4px; font-size: 18px; }
 .explain p { margin: 0 0 8px; color: var(--muted); }
 .explain code { font: 13px var(--mono); color: var(--dim); }
+.explain details { margin-top: 10px; }
+.explain summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--accent); }
+.explain pre { margin: 8px 0 0; padding: 12px 14px; overflow-x: auto; border-radius: 6px; background: var(--bg-soft); border: 1px solid var(--border); }
+.explain pre code { font-size: 13px; line-height: 1.55; color: #d4d4d4; white-space: pre; }
+
+/* ?embed=1: shown inside the slides */
+.app.embed { display: flex; flex-direction: column; padding: 12px 14px 18px; font-size: 14px; }
+.app.embed header, .app.embed footer { display: none; }
+/* widgets first so the reveal is visible without scrolling, then the code, then the timeline */
+.app.embed .controls { order: 0; margin-bottom: 12px; }
+.app.embed .dashboard { order: 1; gap: 8px; margin-bottom: 12px; }
+.app.embed .explain { order: 2; }
+.app.embed .timeline { order: 3; }
+.app.embed .frame { height: 92px; padding: 8px 10px; }
+.app.embed .frame h3 { margin-bottom: 4px; }
+.app.embed .widget .big { font-size: 22px; }
+.app.embed .explain pre code { font-size: 12px; }
 
 /* Dashboard */
 .dashboard { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 22px; }

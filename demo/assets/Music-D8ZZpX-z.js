@@ -1,1 +1,0 @@
-import{j as s}from"./index-t6b4mh4Z.js";function e(){return s.jsxs("div",{className:"widget music",children:[s.jsx("div",{className:"big",children:"🎵 Now playing"}),s.jsx("div",{className:"muted",children:"Lo-fi focus mix · 2:41 / 3:58"}),s.jsx("div",{className:"progress","aria-hidden":"true",children:s.jsx("span",{style:{width:"68%"}})})]})}export{e as default};

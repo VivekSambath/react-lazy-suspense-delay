@@ -310,6 +310,19 @@
   @media (max-width: 900px) { .road { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 680px) { .cover h1 { font-size: 2.4rem; } .road { grid-template-columns: minmax(0, 1fr); } }
 
+  /* ============ Demo links & embedded demo ============ */
+  .demo-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; }
+  .btn.demo { border-color: #0078d4; background: #0078d4; color: #ffffff; text-decoration: none; }
+  .btn.demo:hover { background: #026ec1; }
+  .try { display: grid; gap: 0.55rem; align-content: start; }
+  .try button { display: block; width: 100%; padding: 0.65rem 0.85rem; text-align: left; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: 600 0.92rem var(--sans); cursor: pointer; }
+  .try button span { display: block; margin-top: 0.15rem; font-weight: 400; font-size: 0.8rem; color: var(--dim); }
+  .try button:hover { border-color: var(--blue); }
+  .try button[aria-pressed="true"] { border-color: var(--blue); background: rgba(0, 120, 212, 0.2); }
+  .demo-frame { width: 100%; height: min(36rem, 66vh); border: 1px solid var(--border); border-radius: 8px; background: #1f1f1f; }
+  .split.demo-split { grid-template-columns: minmax(0, 0.7fr) minmax(0, 2.2fr); align-items: start; }
+  @media (max-width: 900px) { .split.demo-split { grid-template-columns: minmax(0, 1fr); } }
+
   /* ============ Buttons & navigation ============ */
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.45rem 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font: 600 0.85rem var(--sans); cursor: pointer; }
   .btn:hover { background: #3c3c3c; }
@@ -338,29 +351,32 @@
 <main class="deck" id="deck" aria-roledescription="slide deck" aria-label="React.lazy and Suspense slides">
 
   <!-- ======================= 1. Cover ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="1 of 13: Introduction" data-title="Introduction">
+  <section class="slide" aria-roledescription="slide" aria-label="1 of 15: Introduction" data-title="Introduction">
     <div class="slide-inner cover">
       <div>
         <p class="kicker">React · Performance · A real story</p>
         <h1><span>React.lazy()</span> + Suspense</h1>
         <p class="subtitle">The hidden 300 ms delay</p>
-        <p class="lead">How a new-tab extension found that React was holding its widgets back, and how they fixed it.</p>
+        <p class="lead">Tab Widgets' code was ready at ~100 ms, but its widgets showed at ~380 ms. React was holding them back on purpose. Here's why, and how they fixed it, step by step.</p>
       </div>
-      <nav class="road stagger" aria-label="Chapters">
-        <a href="#2"><b>01</b>The app<span>What Tab Widgets is</span></a>
-        <a href="#3"><b>02</b>The basics<span>lazy() and Suspense</span></a>
-        <a href="#5"><b>03</b>The problem<span>Ready at 100 ms, shown at 380 ms</span></a>
-        <a href="#9"><b>04</b>The fix<span>Two fixes and the results</span></a>
+      <nav class="road stagger" aria-label="Chapters (the article's table of contents)">
+        <a href="#2"><b>01</b>The setup<span>Tab Widgets, lazy() and Suspense</span></a>
+        <a href="#6"><b>02</b>Bytes weren't the bottleneck<span>Smaller bundle, same wait</span></a>
+        <a href="#8"><b>03</b>React held the widgets back<span>The 300 ms reveal throttle</span></a>
+        <a href="#9"><b>04</b>First fix<span>Load widgets before render</span></a>
+        <a href="#10"><b>05</b>The fix that held up<span>Don't suspend · results · no private fields</span></a>
+        <a href="#14"><b>06</b>What we learned<span>Four lessons</span></a>
+        <a href="#15"><b>07</b>Try it yourself<span>Live demo with the code</span></a>
       </nav>
       <p class="dim small">Based on <a href="https://tabwidgets.com/blog/react-lazy-suspense-delay" rel="noopener">“React.lazy, Suspense and the Hidden 300 ms Delay”</a> by Matthew Wong (Tab Widgets, 29 Oct 2026). Use <kbd>←</kbd> <kbd>→</kbd> or <kbd>Space</kbd> to move.</p>
     </div>
   </section>
 
   <!-- ======================= 2. The app ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="2 of 13: What is Tab Widgets?" data-title="What is Tab Widgets?">
+  <section class="slide" aria-roledescription="slide" aria-label="2 of 15: What is Tab Widgets?" data-title="01 The setup · Tab Widgets">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Background</p>
+        <p class="kicker">01 · The setup</p>
         <h2>The app: Tab Widgets</h2>
       </header>
       <div class="split">
@@ -380,10 +396,10 @@
   </section>
 
   <!-- ======================= 3. lazy() ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="3 of 13: lazy import" data-title="Step 1 · lazy() splits the code">
+  <section class="slide" aria-roledescription="slide" aria-label="3 of 15: lazy import" data-title="01 The setup · lazy()">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Step 1 · Basics</p>
+        <p class="kicker">01 · The setup · basics</p>
         <h2><code style="font-size:.85em">lazy()</code> splits the code</h2>
       </header>
       <div class="grid-2">
@@ -414,10 +430,10 @@
   </section>
 
   <!-- ======================= 4. Suspense ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="4 of 13: Suspense" data-title="Step 2 · Suspense shows a fallback">
+  <section class="slide" aria-roledescription="slide" aria-label="4 of 15: Suspense" data-title="01 The setup · Suspense">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Step 2 · Basics</p>
+        <p class="kicker">01 · The setup · basics</p>
         <h2>Suspense shows a fallback</h2>
       </header>
       <div class="grid-2" style="align-items:center">
@@ -453,10 +469,10 @@ function ClockSlot() {
   </section>
 
   <!-- ======================= 5. Setup ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="5 of 13: How a new tab loads" data-title="Step 3 · How a new tab loads">
+  <section class="slide" aria-roledescription="slide" aria-label="5 of 15: How a new tab loads" data-title="01 The setup · Startup">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Step 3 · The setup</p>
+        <p class="kicker">01 · The setup</p>
         <h2>How a new tab loads</h2>
       </header>
       <div class="flow live" aria-label="Startup in five steps">
@@ -490,10 +506,10 @@ const Notes = lazy(() =&gt; import('./widgets/Notes'));
   </section>
 
   <!-- ======================= 6. First guess ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="6 of 13: First guess, the bundle" data-title="Step 4 · First guess: the bundle">
+  <section class="slide" aria-roledescription="slide" aria-label="6 of 15: First guess, the bundle" data-title="02 Bytes · The bundle">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Step 4 · The problem</p>
+        <p class="kicker">02 · Bytes weren't the bottleneck</p>
         <h2>First guess: the bundle is too big</h2>
         <p class="lead">The page took a noticeable beat to fill in. So they made the startup code smaller.</p>
       </header>
@@ -515,10 +531,10 @@ const Notes = lazy(() =&gt; import('./widgets/Notes'));
   </section>
 
   <!-- ======================= 7. Idle gap ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="7 of 13: The idle gap" data-title="Step 5 · The idle gap">
+  <section class="slide" aria-roledescription="slide" aria-label="7 of 15: The idle gap" data-title="02 Bytes · The idle gap">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Step 5 · The problem</p>
+        <p class="kicker">02 · Bytes weren't the bottleneck</p>
         <h2>The profile showed an idle gap</h2>
         <p class="lead">Production build, headless Chromium: code ready at <strong>~100 ms</strong>, widgets shown at <strong>~380 ms</strong>.</p>
       </header>
@@ -556,10 +572,10 @@ const Notes = lazy(() =&gt; import('./widgets/Notes'));
   </section>
 
   <!-- ======================= 8. Throttle ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="8 of 13: React's 300 ms throttle" data-title="Step 6 · The cause: a 300 ms throttle">
+  <section class="slide" aria-roledescription="slide" aria-label="8 of 15: React's 300 ms throttle" data-title="03 React held the widgets back">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Step 6 · The cause</p>
+        <p class="kicker">03 · React was holding the widgets back on purpose</p>
         <h2>React holds the reveal, on purpose</h2>
       </header>
       <div class="card player" data-max="440" data-speed="8" data-autoplay>
@@ -613,26 +629,30 @@ const Notes = lazy(() =&gt; import('./widgets/Notes'));
         <div class="card"><h3>2 · Reveals are throttled</h3><p>After a fallback appears, React waits until <strong>300 ms</strong> have passed (<code>FALLBACK_THROTTLE_MS</code>). Everything ready by then shows together.</p></div>
       </div>
       <p class="dim small">The throttle stops flicker, and that's a good default. Here the code was ready at ~100 ms, so the wait became the biggest delay. <code>startTransition</code> doesn't help: a boundary that mounts for the first time still shows its fallback.</p>
+      <div class="demo-row"><a class="btn demo" href="demo/?mode=suspend" target="_blank" rel="noopener">▶ See it in the demo: Before</a><span class="dim small"><code>tiles.tsx → SuspendingTile</code> · widgets pop in together</span></div>
     </div>
   </section>
 
   <!-- ======================= 9. Fix #1 ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="9 of 13: Fix 1, preload" data-title="Step 7 · Fix #1: preload before render">
+  <section class="slide" aria-roledescription="slide" aria-label="9 of 15: Fix 1, preload" data-title="04 First fix · Preload">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Step 7 · Fix #1</p>
+        <p class="kicker">04 · First fix</p>
         <h2>Load the widgets before the first render</h2>
       </header>
       <div class="grid-2" style="align-items:center">
-        <pre class="code" data-label="main.jsx (simplified)"><code>// 1. Start each widget's import before rendering
-//    (preloadLazy calls React.lazy's private _init)
-const loading = pageWidgets.map(preloadLazy);
-
+        <pre class="code" data-label="demo-app/src/App.tsx → openNewTab"><code>// 1. Start every widget's import before rendering
 // 2. Wait for them, but never more than 100 ms
-await Promise.race([Promise.all(loading), wait(100)]);
+await Promise.race([
+  Promise.all(widgets.map((w) =&gt; preloadLazy(w.Lazy))),
+  wait(100),
+]);
+// 3. First render: widgets with code ready don't suspend
+setTab({ run, mode, widgets });
 
-// 3. Render: widgets with code ready don't suspend
-root.render(&lt;App /&gt;);</code></pre>
+// preloadLazy: custom helper (lazy/preloadLazy.ts), not React
+// It calls React.lazy's private fields to start import() early:
+component._init(component._payload);</code></pre>
         <div style="display:grid;gap:1rem">
           <div>
             <p class="stat"><span class="from">380</span> → <span class="to">95 ms</span></p>
@@ -649,30 +669,39 @@ root.render(&lt;App /&gt;);</code></pre>
           <ul class="points">
             <li>A widget slower than 100 ms <strong>still suspends</strong>, and can now show later.</li>
             <li>It relies on <strong>React's private fields</strong>, so a unit test guards React upgrades.</li>
+            <li>A modal's loading spinner stole focus. End-to-end tests caught it.</li>
           </ul>
         </div>
       </div>
+      <div class="demo-row"><a class="btn demo" href="demo/?mode=preload" target="_blank" rel="noopener">▶ Run Fix #1 in the demo</a><span class="dim small">Music loads slower than the 100 ms cap, so it still suspends</span></div>
     </div>
   </section>
 
   <!-- ======================= 10. Fix #2 ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="10 of 13: Fix 2, don't suspend" data-title="Step 8 · Fix #2: don't suspend at all">
+  <section class="slide" aria-roledescription="slide" aria-label="10 of 15: Fix 2, don't suspend" data-title="05 The fix that held up">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Step 8 · Fix #2 · the one that held up</p>
+        <p class="kicker">05 · The fix that held up</p>
         <h2>Don't suspend at all</h2>
       </header>
       <div class="grid-2" style="align-items:center">
-        <pre class="code" data-label="WidgetSlot.jsx"><code>function WidgetSlot({ Widget, config }) {
-  // true once the widget's code has loaded
-  const isReady = useLazyReady(Widget);
+        <pre class="code" data-label="demo-app/src/tiles.tsx + lazy/useLazyReady.ts"><code>function GatedTile({ widget }) {
+  const ready = useLazyReady(widget.Lazy);
+  return ready ? &lt;widget.Lazy /&gt; : &lt;WidgetLoading /&gt;;
+}
 
-  return isReady
-    ? &lt;Widget {...config} /&gt;  // normal re-render
-    : &lt;WidgetLoading /&gt;;      // plain content
+// Custom hook, not part of React
+// useReducer, useEffect: React · isLazySettled, preloadLazy: custom
+function useLazyReady(component) {
+  const [, rerender] = useReducer((n) =&gt; n + 1, 0);
+  const ready = isLazySettled(component);
+  useEffect(() =&gt; {
+    if (!ready) preloadLazy(component).then(rerender);
+  }, [component, ready]);
+  return ready;
 }</code></pre>
         <ul class="points stagger">
-          <li><code>useLazyReady</code> starts the import and <strong>re-renders</strong> when the code lands.</li>
+          <li><code>useLazyReady</code> is a <strong>custom hook</strong> (not from React). It starts the import and <strong>re-renders</strong> when the code lands.</li>
           <li>The placeholder is <strong>ordinary content</strong>, not a Suspense fallback.</li>
           <li>Nothing suspends, so <strong>the 300 ms throttle never applies</strong>. Widgets appear one by one.</li>
           <li>Keep the Suspense and error boundary around it as a safety net.</li>
@@ -700,15 +729,15 @@ root.render(&lt;App /&gt;);</code></pre>
           </div>
         </div>
       </div>
-      <p class="dim small">Want to avoid React's private fields? Cache <code>import()</code> yourself and swap in the component with state (<code>useLoadedComponent</code> in <code>demo-app/src/lazy</code>).</p>
+      <div class="demo-row"><a class="btn demo" href="demo/?mode=gate" target="_blank" rel="noopener">▶ Run Fix #2 in the demo</a><span class="dim small">Each widget shows the moment its code lands. Shipped in Tab Widgets v2.</span></div>
     </div>
   </section>
 
   <!-- ======================= 11. See it ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="11 of 13: Before and after, animated" data-title="Step 9 · See the difference">
+  <section class="slide" aria-roledescription="slide" aria-label="11 of 15: Before and after, animated" data-title="05 Results · Before vs after">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Step 9 · See it</p>
+        <p class="kicker">05 · Results</p>
         <h2>Before vs after, in slow motion</h2>
       </header>
       <div class="card player" data-max="640" data-speed="6" data-autoplay id="compare">
@@ -732,15 +761,15 @@ root.render(&lt;App /&gt;);</code></pre>
         </div>
         <div class="track" style="--max:640;height:.6rem;margin-top:.9rem" aria-hidden="true"><span class="seg blue" style="--from:0;--to:640;top:0;bottom:0"></span><span class="future"></span></div>
       </div>
-      <p class="dim small">Weather waits for its data, so it still lands late in both. Placeholder timing is simplified. Want real React? Open the <a href="demo/">live demo app</a>.</p>
+      <div class="demo-row"><a class="btn demo" href="demo/?mode=suspend" target="_blank" rel="noopener">▶ Before in the demo</a><a class="btn demo" href="demo/?mode=gate" target="_blank" rel="noopener">▶ After in the demo</a><span class="dim small">Weather waits for its data, so it lands late in both. Placeholder timing is simplified.</span></div>
     </div>
   </section>
 
   <!-- ======================= 12. Results ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="12 of 13: Results" data-title="Step 10 · Results">
+  <section class="slide" aria-roledescription="slide" aria-label="12 of 15: Results" data-title="05 Results · Chart">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Step 10 · Results</p>
+        <p class="kicker">05 · Results</p>
         <h2>Widgets show ~200 ms sooner</h2>
         <p class="dim small" style="margin-top:.5rem">Chrome 154 · Windows 11 · 20-widget dashboard (16 visible) · signed out · mean of 4 cold tabs</p>
       </header>
@@ -770,15 +799,58 @@ root.render(&lt;App /&gt;);</code></pre>
           <tr><td>All widget content</td><td>540</td><td>544</td></tr>
         </table>
       </figure>
+      <p class="dim small">Still throttled: Weather and Word of the Day suspend while fetching data. They're the next target.</p>
       <div class="callout green">~107 new tabs a day → about <strong>20 seconds a day</strong>, or <strong>~2 hours a year</strong>, saved.</div>
     </div>
   </section>
 
-  <!-- ======================= 13. Takeaways ======================= -->
-  <section class="slide" aria-roledescription="slide" aria-label="13 of 13: Takeaways" data-title="Takeaways">
+  <!-- ======================= 13. Without private fields ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="13 of 15: Without React's private fields" data-title="05 Without React's private fields">
     <div class="slide-inner">
       <header>
-        <p class="kicker">Takeaways</p>
+        <p class="kicker">05 · The fix that held up · alternative</p>
+        <h2>Without React's private fields</h2>
+        <p class="lead">For new code: skip <code>React.lazy</code>. Cache the loaded component yourself and swap it in with state.</p>
+      </header>
+      <div class="grid-2" style="align-items:start">
+        <pre class="code" data-label="demo-app/src/lazy/useLoadedComponent.ts"><code>const loaded = new WeakMap(); // loader → component
+
+// Custom hook, not part of React
+function useLoadedComponent(load) {
+  const [C, setC] = useState(() =&gt; loaded.get(load));
+  useEffect(() =&gt; {
+    if (!C) load().then((m) =&gt; {
+      loaded.set(load, m.default);
+      setC(() =&gt; m.default); // normal state update
+    });
+  }, [load, C]);
+  return C;
+}</code></pre>
+        <div style="display:grid;gap:1rem">
+          <pre class="code" data-label="Usage"><code>// Define the loader once, at module level
+const loadNotes = () =&gt; import('./widgets/Notes');
+
+function Notes(props) {
+  const Widget = useLoadedComponent(loadNotes);
+  return Widget ? &lt;Widget {...props} /&gt; : &lt;WidgetLoading /&gt;;
+}</code></pre>
+          <ul class="points stagger">
+            <li><strong>No private fields</strong>, so React upgrades can't break it.</li>
+            <li>The loader must be <strong>stable</strong>, because it's the cache key.</li>
+            <li>Can <strong>retry</strong> a failed import. <code>React.lazy</code> remembers the failure forever.</li>
+            <li>In production, store the error and throw it in render so the error boundary shows it.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="demo-row"><a class="btn demo" href="demo/?mode=cache" target="_blank" rel="noopener">▶ Run the alternative in the demo</a><span class="dim small"><code>tiles.tsx → CachedTile</code></span></div>
+    </div>
+  </section>
+
+  <!-- ======================= 14. Takeaways ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="14 of 15: Takeaways" data-title="06 What we learned">
+    <div class="slide-inner">
+      <header>
+        <p class="kicker">06 · What we learned</p>
         <h2>What they learned</h2>
       </header>
       <div class="grid-4 stagger">
@@ -796,10 +868,32 @@ root.render(&lt;App /&gt;);</code></pre>
           <h3>Learn more</h3>
           <ul class="points">
             <li><a href="https://tabwidgets.com/blog/react-lazy-suspense-delay" rel="noopener">Original article</a>: the full story and numbers</li>
-            <li><a href="demo/">Live demo app</a>: real React 19, four approaches side by side</li>
+            <li><a href="#15">Live demo app</a>: real React 19, four approaches, with the code</li>
             <li><a href="https://react.dev/reference/react/Suspense" rel="noopener">React docs: Suspense</a></li>
           </ul>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 15. Try it yourself ======================= -->
+  <section class="slide" aria-roledescription="slide" aria-label="15 of 15: Try it yourself" data-title="07 Try it yourself">
+    <div class="slide-inner">
+      <header>
+        <p class="kicker">07 · Try it yourself</p>
+        <h2>Live demo: the code and the fixes</h2>
+      </header>
+      <div class="split demo-split">
+        <div class="try">
+          <p class="dim small">Pick a mode. The demo runs real React 19 and shows each mode's code, the widgets and a timeline.</p>
+          <button type="button" data-demo-mode="suspend" aria-pressed="true">Before<span>lazy + Suspense: widgets pop in together</span></button>
+          <button type="button" data-demo-mode="preload" aria-pressed="false">Fix #1 · Preload<span>Wait up to 100 ms. Music still suspends.</span></button>
+          <button type="button" data-demo-mode="gate" aria-pressed="false">Fix #2 · Gate<span>Each widget shows as its code lands</span></button>
+          <button type="button" data-demo-mode="cache" aria-pressed="false">Alternative · Cache<span>No React.lazy, no private fields</span></button>
+          <p class="dim small">Tip: set “Code loads” to <b>slow</b>, then press “Open a new tab”.</p>
+          <a class="btn demo" href="demo/" target="_blank" rel="noopener">Open full screen ↗</a>
+        </div>
+        <iframe class="demo-frame" title="Live demo app" data-src="demo/?embed=1&amp;mode=suspend"></iframe>
       </div>
     </div>
   </section>
@@ -808,7 +902,7 @@ root.render(&lt;App /&gt;);</code></pre>
 <nav class="nav" aria-label="Slide controls">
   <span class="nav-title" id="nav-title">Introduction</span>
   <button class="btn" type="button" id="prev" aria-label="Previous slide">← Prev</button>
-  <span class="nav-count" id="nav-count" aria-live="polite">1 / 13</span>
+  <span class="nav-count" id="nav-count" aria-live="polite">1 / 15</span>
   <button class="btn" type="button" id="next" aria-label="Next slide">Next →</button>
 </nav>
 
@@ -899,6 +993,15 @@ root.render(&lt;App /&gt;);</code></pre>
     compare._player.play();
   });
 
+  // Slide 15: the mode buttons load that mode into the embedded demo.
+  each(document.querySelectorAll("[data-demo-mode]"), function (btn) {
+    btn.addEventListener("click", function () {
+      var frame = document.querySelector(".demo-frame");
+      frame.setAttribute("src", "demo/?embed=1&mode=" + btn.getAttribute("data-demo-mode"));
+      each(document.querySelectorAll("[data-demo-mode]"), function (b) { b.setAttribute("aria-pressed", String(b === btn)); });
+    });
+  });
+
   /* ================= Entrance + flow animation order ================= */
   each(document.querySelectorAll(".slide-inner > *"), function (el) {
     el.style.setProperty("--i", Array.prototype.indexOf.call(el.parentNode.children, el));
@@ -941,6 +1044,8 @@ root.render(&lt;App /&gt;);</code></pre>
     autoplayTimer = setTimeout(function () {
       each(slides[index].querySelectorAll(".player[data-autoplay]"), function (p) { p._player.play(); });
     }, reduceMotion ? 0 : 650);
+    var frame = slides[index].querySelector("iframe[data-src]");
+    if (frame && !frame.getAttribute("src")) frame.setAttribute("src", frame.getAttribute("data-src"));
     progress.style.width = ((index + 1) / total) * 100 + "%";
     count.textContent = (index + 1) + " / " + total;
     title.textContent = slides[index].getAttribute("data-title");
